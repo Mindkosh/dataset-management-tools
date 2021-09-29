@@ -1,4 +1,6 @@
 import os
+import time
+import utils
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
@@ -6,21 +8,21 @@ from PIL import ImageTk, Image
 from labelDraw import LabelDraw
 
 class ImageCanvas:
-    def __init__(self, ws, canvas_height, canvas_width, image_frame_indicator):
+    def __init__(self, ws, ws1, canvas_height, canvas_width, image_frame_indicator):
         self.canvas_width = canvas_width
         self.canvas_height = canvas_height
         self.image_frame_indicator = image_frame_indicator
-
+        self.ws = ws1
         self.canvas = Canvas(
-                        ws, 
+                        self.ws, 
                         width = canvas_width, 
                         height = canvas_height
                     )  
-        self.canvas.grid(row=0, column=0, columnspan=5)  
+        self.canvas.grid(row=0, column=0)  
 
         self.extension_list = [".png", ".jpg", ".jpeg"]
         self.imgs = []
-        self.img_dir = "/home/sdevgupta/cityscapes_leftimg8bit_train_val/leftImg8bit"
+        self.img_dir = os.path.join( utils.get_assets_dir(), "dataset/images" )
         self.label_object = None
 
         for i in os.listdir(self.img_dir):
@@ -46,13 +48,15 @@ class ImageCanvas:
 
         self.labels_file = ""
 
+
     def calc_size( self, size ):
         if size[0]>size[1]:
-            width = self.canvas_width
+            width = min(self.canvas_width, size[0])
             height = int((width/size[0])*size[1])
         else:
-            height = self.canvas_height
+            height = min(self.canvas_width, size[1])
             width = int((height/size[1])*size[0])
+        
         return [width, height]
 
 
@@ -72,6 +76,7 @@ class ImageCanvas:
             self.img_index+=1
             self.image_frame_indicator.set( str(self.img_index+1) + "/" + str(self.number_of_images))
     
+
     def previous_image(self):
         if self.img_index>0:
             if self.label_object is not None:
@@ -87,6 +92,7 @@ class ImageCanvas:
             self.canvas.config(width=self.w, height=self.h)
             self.img_index-=1
             self.image_frame_indicator.set( str(self.img_index+1) + "/" + str(self.number_of_images))
+        
 
     def update_img_list(self, img_list=None):
         if img_list is None:
@@ -115,14 +121,16 @@ class ImageCanvas:
             self.w, self.h = self.calc_size( self.raw_img.size )
             self.raw_img = self.raw_img.resize((self.w, self.h), Image.ANTIALIAS)
             self.base_img = ImageTk.PhotoImage( self.raw_img )
+            self.canvas.config(width=self.w, height=self.h)
             self.img_container = self.canvas.create_image(
                                 0, 
                                 0, 
                                 anchor=NW, 
                                 image=self.base_img
                             )
-            self.canvas.config(width=self.w, height=self.h)
             self.image_frame_indicator.set( str(self.img_index+1) + "/" + str(self.number_of_images))
+        
+        return True
                 
 
     def load_from_datumaro_dataset(self):
@@ -136,3 +144,16 @@ class ImageCanvas:
         except Exception as e:
             print(e)
             messagebox.showinfo("Error", "Could not parse Labels file")
+        
+        return True
+
+    def export_images_with_labels(self, progress_bar):
+        for index in range( self.number_of_images ):
+            labeled_img = self.label_object.get_labeled_image(index)
+            output_path = os.path.join( utils.get_assets_dir(), "dataset/exports", os.path.basename(self.imgs[index]))
+            labeled_img.save( output_path )
+            # Update progress bar
+            time.sleep(1)
+            progress_bar['value'] += int( 200*float(index+1)/self.number_of_images )
+            self.ws.update_idletasks()
+        return True
