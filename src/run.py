@@ -49,7 +49,6 @@ class MainWindow:
     def load_from_dataset_file(self):
         self.popup_bonus()
         self.ws.update()
-        time.sleep(3)
         if self.canvas_obj.load_from_datumaro_dataset() is True:
             self.popup_window.destroy()
             self.filemenu.entryconfig( 2, state="normal")
@@ -80,7 +79,7 @@ class MainWindow:
         self.filemenu = Menu(self.menubar, tearoff=0)
         self.filemenu.add_command(label="Load from Dataset file", command=self.load_from_dataset_file, font=("Arial", 16))
         self.filemenu.add_command(label="Load Image Directory", command=self.load_from_directory, font=("Arial", 16))
-        self.filemenu.add_command(label="Export Images with labels", command=self.export_labeled_images, font=("Arial", 16), state="disabled")
+        self.filemenu.add_command(label="Export Images with labels", command=self.export_labeled_images, font=("Arial", 16), state="normal")
         
         self.filemenu.add_separator()
 
