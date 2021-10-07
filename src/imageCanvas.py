@@ -25,7 +25,11 @@ class ImageCanvas:
         self.label_object = None
         self.img_index = 0
 
-        default_dataset_file = os.path.join( utils.get_assets_dir(), "dataset/annotations/instances_default.json" )
+        if os.name=="nt":
+            default_dataset_file = os.path.join( utils.get_assets_dir(), "dataset\\annotations\\instances_default.json" )
+        else:
+            default_dataset_file = os.path.join( utils.get_assets_dir(), "dataset/annotations/instances_default.json" )
+        print(default_dataset_file)
         self.load_from_datumaro_dataset( default_dataset_file )
 
 
@@ -134,7 +138,12 @@ class ImageCanvas:
     def export_images_with_labels(self, progress_bar):
         for index in range( self.number_of_images ):
             labeled_img = self.label_object.get_labeled_image(index)
-            output_path = os.path.join( utils.get_assets_dir(), "dataset/exports", os.path.basename(self.imgs[index]))
+
+            if os.name=="nt":
+                output_path = os.path.join( utils.get_assets_dir(), "dataset\\exports", os.path.basename(self.imgs[index]))
+            else:
+                output_path = os.path.join( utils.get_assets_dir(), "dataset/exports", os.path.basename(self.imgs[index]))
+
             labeled_img.save( output_path )
             # Update progress bar
             time.sleep(1)
