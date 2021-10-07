@@ -1,13 +1,13 @@
-import threading
-from PIL import Image
 import cv2
-from datetime import datetime
 import json
-from pathlib import Path
-from collections import namedtuple
-import categorySection
-import imageSection
 import argparse
+from PIL import Image
+from pathlib import Path
+from datetime import datetime
+
+import imageSection
+import categorySection
+
 
 def create_skeleton():
     out_json = {

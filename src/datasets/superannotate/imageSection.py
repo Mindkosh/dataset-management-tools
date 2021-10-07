@@ -1,7 +1,7 @@
-from collections import namedtuple
-import cv2
 import os
+import cv2
 from PIL import Image
+from collections import namedtuple
 
 
 def get_image_dimensions(image_path):

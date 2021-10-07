@@ -83,7 +83,7 @@ class MainWindow:
         
         self.filemenu.add_separator()
 
-        self.filemenu.add_command(label="Settings", command=self.settings_dialog, font=("Arial", 16), state="disabled")
+        self.filemenu.add_command(label="Settings", command=self.settings_dialog, font=("Arial", 16), state="normal")
         self.filemenu.add_command(label="Exit", command=self.ws.quit, font=("Arial", 16))
         self.menubar.add_cascade(label="File", menu=self.filemenu, font=("Arial", 16))
        

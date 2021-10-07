@@ -7,7 +7,6 @@ from datumaro.components.dataset import Dataset
 class LabelDraw():
     def __init__( self, labels_file ):
         try:
-            print(labels_file)
             self.dataset = Dataset.import_from(labels_file, 'coco')
         except Exception as e:
             print(e)
