@@ -21,6 +21,7 @@ class ImageCanvas:
         )
         self.click = False
         self.canvas.grid(row=0, column=0)
+        self.ws.bind('<Configure>', self.onResize)
         self.canvas_height = self.ws.winfo_reqheight()
         self.canvas_width = self.ws.winfo_reqwidth()
         self.extension_list = [".png", ".jpg", ".jpeg"]
@@ -34,7 +35,6 @@ class ImageCanvas:
             default_dataset_file = os.path.join(utils.get_assets_dir(), "dataset/annotations/instances_default.json")
         print(default_dataset_file)
         self.load_from_datumaro_dataset(default_dataset_file)
-
 
     def calc_size(self, size):
         if size[0] > size[1]:
@@ -54,11 +54,11 @@ class ImageCanvas:
 
             self.w, self.h = self.calc_size(self.raw_img.size)
             # self.raw_img = self.raw_img.resize((self.w, self.h), Image.ANTIALIAS)
-            self.raw_img = self.raw_img.resize((self.canvas_width, self.canvas_height), Image.NORMAL)
+            self.raw_img = self.raw_img.resize((self.canvas_width, self.canvas_height), Image.ANTIALIAS)
             self.new_img = ImageTk.PhotoImage(self.raw_img)
 
             self.canvas.itemconfig(self.img_container, image=self.new_img)
-            # self.canvas.config(width=self.w, height=self.h)
+            self.canvas.config(width=self.w, height=self.h)
             self.img_index += 1
             self.image_frame_indicator.set(str(self.img_index + 1) + "/" + str(self.number_of_images))
 
@@ -70,7 +70,7 @@ class ImageCanvas:
                 self.raw_img = Image.open(self.imgs[self.img_index - 1])
 
             self.w, self.h = self.calc_size(self.raw_img.size)
-            self.raw_img = self.raw_img.resize((self.w, self.h), Image.ANTIALIAS)
+            self.raw_img = self.raw_img.resize((self.canvas_width, self.canvas_height), Image.ANTIALIAS)
             self.new_img = ImageTk.PhotoImage(self.raw_img)
 
             self.canvas.itemconfig(self.img_container, image=self.new_img)
@@ -152,11 +152,14 @@ class ImageCanvas:
             self.ws.update_idletasks()
         return True
 
-    def onResize(self, event):
-        # resize the canvas
+    def resetSize(self):
         self.raw_img = self.raw_img.resize((self.canvas_width, self.canvas_height), Image.ANTIALIAS)
         self.new_img = ImageTk.PhotoImage(self.raw_img)
+
         self.canvas.itemconfig(self.img_container, image=self.new_img)
-        self.canvas.height = event.height
-        self.canvas.width = event.width
-        self.canvas.config(width=event.width, height=event.height)
+        self.canvas.config(width=self.canvas_width, height=self.canvas_height)
+
+    def onResize(self, event):
+        # resize the canvas
+        self.canvas_height = event.height
+        self.canvas_width = event.width

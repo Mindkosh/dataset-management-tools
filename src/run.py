@@ -13,7 +13,6 @@ class MainWindow:
         self.ws = Tk()
         self.height = min(1200, self.ws.winfo_screenwidth())
         self.width = min(900, self.ws.winfo_screenheight())
-        print(self.ws.winfo_screenwidth(), self.ws.winfo_screenheight())
 
         self.ws.title('Explore Dataset')
         self.ws.tk.call('wm', 'iconphoto', self.ws._w,
@@ -44,6 +43,11 @@ class MainWindow:
                            fg='#ffffff', pady=8, cursor="hand1")
         self.btn4["font"] = self.myFont
         self.btn4.grid(row=0, column=2)
+
+        self.btn5 = Button(self.controlsFrame, text="Reset Size", command=self.canvas_obj.resetSize, bg='#0052cc',
+                           fg='#ffffff', pady=8, cursor="hand1")
+        self.btn5["font"] = self.myFont
+        self.btn5.grid(row=1, column=1)
 
         self.createMenu()
 
