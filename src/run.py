@@ -33,7 +33,6 @@ class MainWindow:
         self.canvas_obj = ImageCanvas(self.imageFrame, self.ws, self.height, self.width, self.image_number)
 
         self.myFont = font.Font(size=12)
-
         self.btn3 = Button(self.controlsFrame, text="Previous", command=self.canvas_obj.previous_image, bg='#0052cc',
                            fg='#ffffff', pady=8, cursor="hand1")
         self.btn3["font"] = self.myFont
@@ -50,6 +49,15 @@ class MainWindow:
         self.btn5.grid(row=1, column=1)
 
         self.createMenu()
+        self.v=DoubleVar()
+        self.scroll=Scale(self.ws,orient=HORIZONTAL,resolution=65793,label='Brightness',from_ = 0, to = 16777215, variable=self.v,command=self.control)
+        self.scroll.set(15790320)
+        self.scroll.grid( row = 15, column=1, columnspan=1, sticky='ew' )
+        
+    def control(self,n):
+        m=int(n)
+        col='#'+( '000000' + hex( m )[2:])[~5:]
+        self.ws.tk_setPalette(col)
 
     def aboutWindow(self):
         print("Menu option clicked")
@@ -105,7 +113,6 @@ class MainWindow:
         self.popup_window = Toplevel()
 
         self.popup_window.wm_title("Loading Data")
-
         self.popup_window_label = Label(self.popup_window, text="Loading Dataset...", padx=20, pady=20,
                                         font=("Arial", 16))
         self.popup_window_label.grid(row=0, column=0)
