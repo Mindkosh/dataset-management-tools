@@ -5,6 +5,12 @@ import tkinter.font as font
 from tkinter.ttk import Progressbar
 from imageCanvas import ImageCanvas
 import utils
+import random
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
+
+
 
 
 class MainWindow:
