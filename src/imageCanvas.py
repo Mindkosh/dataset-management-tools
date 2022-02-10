@@ -10,9 +10,11 @@ from tkinter import ttk
 import random
 import tkinter as tk
 
+
 class AutoScrollbar(ttk.Scrollbar):
     ''' A scrollbar that hides itself if it's not needed.
         Works only if you use the grid geometry manager '''
+
     def set(self, lo, hi):
         if float(lo) <= 0.0 and float(hi) >= 1.0:
             self.grid_remove()
@@ -25,7 +27,6 @@ class AutoScrollbar(ttk.Scrollbar):
 
     def place(self, **kw):
         raise tk.TclError('Cannot use place with this widget')
-
 
 
 class ImageCanvas:
@@ -72,11 +73,11 @@ class ImageCanvas:
         # Bind events to the Canvas
         self.canvas.bind('<Configure>', self.show_image)  # canvas is resized
         self.canvas.bind('<ButtonPress-1>', self.move_from)
-        self.canvas.bind('<B1-Motion>',     self.move_to)
+        self.canvas.bind('<B1-Motion>', self.move_to)
         self.canvas.bind('<MouseWheel>', self.wheel)  # with Windows and MacOS, but not Linux
-        self.canvas.bind('<Button-5>',   self.wheel)  # only with Linux, wheel scroll down
-        self.canvas.bind('<Button-4>',   self.wheel)  # only with Linux, wheel scroll up
-        
+        self.canvas.bind('<Button-5>', self.wheel)  # only with Linux, wheel scroll down
+        self.canvas.bind('<Button-4>', self.wheel)  # only with Linux, wheel scroll up
+
         self.text = self.canvas.create_text(0, 0, anchor='nw', text='Scroll to zoom')
 
         self.imscale = 1.0  # scale for the canvaas image
@@ -85,10 +86,9 @@ class ImageCanvas:
 
         width, height = self.raw_img.size
         minsize, maxsize = 5, 20
-        self.img_container = self.canvas.create_rectangle(0, 0, self.canvas_width, self.canvas_height,width=0)
+        self.img_container = self.canvas.create_rectangle(0, 0, self.canvas_width, self.canvas_height, width=0)
         self.show_image()
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
-   
 
     def move_from(self, event):
         ''' Remember previous coordinates for scrolling with the mouse '''
@@ -97,15 +97,15 @@ class ImageCanvas:
     def move_to(self, event):
         ''' Drag (move) canvas to the new position '''
         self.canvas.scan_dragto(event.x, event.y, gain=1)
-        
+
     def wheel(self, event):
         scale = 1.0
         # Respond to Linux (event.num) or Windows (event.delta) wheel event
         if event.num == 5 or event.delta == -120:
-            scale        *= self.delta
+            scale *= self.delta
             self.imscale *= self.delta
         if event.num == 4 or event.delta == 120:
-            scale        /= self.delta
+            scale /= self.delta
             self.imscale /= self.delta
         # Rescale all canvas objects
         x = self.canvas.canvasx(event.x)
@@ -128,8 +128,8 @@ class ImageCanvas:
         # self.canvas.lower(self.imageid)  # set it into background
         self.canvas.imagetk = imagetk  # keep an extra reference to prevent garbage-collection
 
-    def calc_size( self, size ):
-        if size[0]>size[1]:
+    def calc_size(self, size):
+        if size[0] > size[1]:
             width = min(self.canvas_width, size[0])
             height = int((width / size[0]) * size[1])
         else:
@@ -138,7 +138,7 @@ class ImageCanvas:
         return [width, height]
 
     def next_image(self):
-        if self.img_index<self.number_of_images-1:
+        if self.img_index < self.number_of_images - 1:
             if self.imageid:
                 self.canvas.delete(self.imageid)
                 self.imageid = None
@@ -146,12 +146,12 @@ class ImageCanvas:
             if self.label_object is not None:
                 self.raw_img = self.label_object.get_labeled_image(self.img_index + 1)
             else:
-                self.raw_img = Image.open( self.imgs[self.img_index+1] )
+                self.raw_img = Image.open(self.imgs[self.img_index + 1])
             self.w, self.h = self.raw_img.size
             self.canvas.config(width=self.w, height=self.h)
-            self.img_index = self.img_index+1
+            self.img_index = self.img_index + 1
             self.show_image()
-            self.image_frame_indicator.set( str(self.img_index+1) + "/" + str(self.number_of_images))
+            self.image_frame_indicator.set(str(self.img_index + 1) + "/" + str(self.number_of_images))
             # if self.label_object is not None:
             #     self.raw_img = self.label_object.get_labeled_image(self.img_index+1)
             # else:
@@ -165,10 +165,9 @@ class ImageCanvas:
             # self.canvas.config(width=self.w, height=self.h)
             # self.img_index+=1
             # self.image_frame_indicator.set( str(self.img_index+1) + "/" + str(self.number_of_images))
-    
 
     def previous_image(self):
-        if self.img_index>0:
+        if self.img_index > 0:
             if self.imageid:
                 self.canvas.delete(self.imageid)
                 self.imageid = None
@@ -216,14 +215,14 @@ class ImageCanvas:
             self.base_img = ImageTk.PhotoImage(self.raw_img)
             self.canvas.config(width=self.w, height=self.h)
             self.img_container = self.canvas.create_image(
-                                0, 
-                                0, 
-                                anchor=NW, 
-                                image=self.base_img
-                            )
+                0,
+                0,
+                anchor=NW,
+                image=self.base_img
+            )
             self.canvas.delete(self.img_container)
-            self.image_frame_indicator.set( str(self.img_index+1) + "/" + str(self.number_of_images))
-        
+            self.image_frame_indicator.set(str(self.img_index + 1) + "/" + str(self.number_of_images))
+
         return True
 
     def load_from_datumaro_dataset(self, filename=None):
@@ -263,10 +262,10 @@ class ImageCanvas:
         return True
 
     def resetSize(self):
-        self.raw_img = self.raw_img.resize((self.canvas_width, self.canvas_height), Image.ANTIALIAS)
+        print(self.canvas_width, self.canvas_height)
+        self.raw_img = self.raw_img.resize((self.canvas_width - 50, self.canvas_height - 50), Image.ANTIALIAS)
         self.new_img = ImageTk.PhotoImage(self.raw_img)
 
-        self.canvas.itemconfig(self.img_container, image=self.new_img)
         self.canvas.config(width=self.canvas_width, height=self.canvas_height)
 
     def onResize(self, event):
