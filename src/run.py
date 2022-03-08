@@ -48,6 +48,7 @@ class MainWindow:
                            fg='#ffffff', pady=8, cursor="hand1")
         self.btn4["font"] = self.myFont
         self.btn4.grid(row=0, column=2)
+        self.ws.bind('<Configure>', self.canvas_obj.onResize)
 
         # self.btn5 = Button(self.controlsFrame, text="Reset Size", command=self.canvas_obj.resetSize, bg='#0052cc',
         #                    fg='#ffffff', pady=8, cursor="hand1")

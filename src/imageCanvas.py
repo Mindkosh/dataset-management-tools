@@ -52,8 +52,8 @@ class ImageCanvas:
         self.click = False
         self.canvas.grid(row=0, column=0)
         # self.ws.bind('<Configure>', self.onResize)
-        self.canvas_height = self.ws.winfo_reqheight()
-        self.canvas_width = self.ws.winfo_reqwidth()
+        # self.canvas_height = self.ws.winfo_reqheight()
+        # self.canvas_width = self.ws.winfo_reqwidth()
         self.extension_list = [".png", ".jpg", ".jpeg"]
         self.imgs = []
         self.label_object = None
@@ -268,7 +268,10 @@ class ImageCanvas:
     #
     #     self.canvas.config(width=self.canvas_width, height=self.canvas_height)
 
-    # def onResize(self, event):
-    #     # resize the canvas
-    #     self.canvas_height = event.height
-    #     self.canvas_width = event.width
+    def onResize(self, event):
+        print(event.width, event.height)
+        # resize the canvas
+        img = Image.open(self.imgs[self.img_index])
+        resized = img.resize((event.width, event.height), Image.ANTIALIAS)
+        img2 = ImageTk.PhotoImage(resized)
+        self.canvas.create_image(0, 0, image=img2, anchor='nw')
