@@ -51,7 +51,7 @@ class ImageCanvas:
         )
         self.click = False
         self.canvas.grid(row=0, column=0)
-        self.ws.bind('<Configure>', self.onResize)
+        # self.ws.bind('<Configure>', self.onResize)
         self.canvas_height = self.ws.winfo_reqheight()
         self.canvas_width = self.ws.winfo_reqwidth()
         self.extension_list = [".png", ".jpg", ".jpeg"]
@@ -261,14 +261,14 @@ class ImageCanvas:
             self.ws.update_idletasks()
         return True
 
-    def resetSize(self):
-        print(self.canvas_width, self.canvas_height)
-        self.raw_img = self.raw_img.resize((self.canvas_width - 50, self.canvas_height - 50), Image.ANTIALIAS)
-        self.new_img = ImageTk.PhotoImage(self.raw_img)
+    # def resetSize(self):
+    #     print(self.canvas_width, self.canvas_height)
+    #     self.raw_img = self.raw_img.resize((self.canvas_width - 50, self.canvas_height - 50), Image.ANTIALIAS)
+    #     self.new_img = ImageTk.PhotoImage(self.raw_img)
+    #
+    #     self.canvas.config(width=self.canvas_width, height=self.canvas_height)
 
-        self.canvas.config(width=self.canvas_width, height=self.canvas_height)
-
-    def onResize(self, event):
-        # resize the canvas
-        self.canvas_height = event.height
-        self.canvas_width = event.width
+    # def onResize(self, event):
+    #     # resize the canvas
+    #     self.canvas_height = event.height
+    #     self.canvas_width = event.width

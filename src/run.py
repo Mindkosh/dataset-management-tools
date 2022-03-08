@@ -49,10 +49,10 @@ class MainWindow:
         self.btn4["font"] = self.myFont
         self.btn4.grid(row=0, column=2)
 
-        self.btn5 = Button(self.controlsFrame, text="Reset Size", command=self.canvas_obj.resetSize, bg='#0052cc',
-                           fg='#ffffff', pady=8, cursor="hand1")
-        self.btn5["font"] = self.myFont
-        self.btn5.grid(row=1, column=1)
+        # self.btn5 = Button(self.controlsFrame, text="Reset Size", command=self.canvas_obj.resetSize, bg='#0052cc',
+        #                    fg='#ffffff', pady=8, cursor="hand1")
+        # self.btn5["font"] = self.myFont
+        # self.btn5.grid(row=1, column=1)
 
         self.createMenu()
         self.v=DoubleVar()
