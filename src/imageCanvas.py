@@ -4,7 +4,7 @@ import utils
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
-from PIL import ImageTk, Image
+from PIL import ImageTk, Image, ImageEnhance
 from labelDraw import LabelDraw
 from tkinter import ttk
 import random
@@ -60,11 +60,13 @@ class ImageCanvas:
         self.img_index = 0
 
         if os.name == "nt":
-            default_dataset_file = os.path.join(utils.get_assets_dir(), "dataset\\annotations\\instances_default.json")
+            self.default_dataset_file = os.path.join(utils.get_assets_dir(),
+                                                     "dataset\\annotations\\instances_default.json")
         else:
-            default_dataset_file = os.path.join(utils.get_assets_dir(), "dataset/annotations/instances_default.json")
-        print(default_dataset_file)
-        self.load_from_datumaro_dataset(default_dataset_file)
+            self.default_dataset_file = os.path.join(utils.get_assets_dir(),
+                                                     "dataset/annotations/instances_default.json")
+        print(self.default_dataset_file)
+        self.load_from_datumaro_dataset(self.default_dataset_file)
         vbar.configure(command=self.canvas.yview)  # bind scrollbars to the canvas
         hbar.configure(command=self.canvas.xview)
 
@@ -241,8 +243,6 @@ class ImageCanvas:
             print(e)
             messagebox.showinfo("Error", "Could not parse Labels file")
 
-        return True
-
     def export_images_with_labels(self, progress_bar):
         for index in range(self.number_of_images):
             labeled_img = self.label_object.get_labeled_image(index)
@@ -275,3 +275,15 @@ class ImageCanvas:
         resized = img.resize((event.width, event.height), Image.ANTIALIAS)
         img2 = ImageTk.PhotoImage(resized)
         self.canvas.create_image(0, 0, image=img2, anchor='nw')
+
+    def control(self, n):
+        print(n)
+        m = float(n)
+        self.raw_img = self.label_object.get_labeled_image(self.img_index)
+        enhancer = ImageEnhance.Brightness(self.raw_img)
+        im = enhancer.enhance(m)
+        self.raw_img = im
+        img2 = ImageTk.PhotoImage(im)
+        image_on_canvas = self.canvas.create_image(0, 0, image=img2, anchor=NW)
+        self.canvas.itemconfig(image_on_canvas, image=img2)
+        self.show_image()

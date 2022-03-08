@@ -11,8 +11,6 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 
 
-
-
 class MainWindow:
 
     def __init__(self):
@@ -56,15 +54,11 @@ class MainWindow:
         # self.btn5.grid(row=1, column=1)
 
         self.createMenu()
-        self.v=DoubleVar()
-        self.scroll=Scale(self.ws,orient=HORIZONTAL,resolution=65793,label='Brightness',from_ = 0, to = 16777215, variable=self.v,command=self.control)
-        self.scroll.set(15790320)
-        self.scroll.grid( row = 15, column=1, columnspan=1, sticky='ew' )
-        
-    def control(self,n):
-        m=int(n)
-        col='#'+( '000000' + hex( m )[2:])[~5:]
-        self.ws.tk_setPalette(col)
+        self.v = DoubleVar()
+        self.scroll = Scale(self.ws, orient=HORIZONTAL, resolution=0.1, label='Brightness', from_=0, to=2,
+                            variable=self.v, command=self.canvas_obj.control)
+        self.scroll.set(1)
+        self.scroll.grid(row=15, column=1, columnspan=1, sticky='ew')
 
     def aboutWindow(self):
         print("Menu option clicked")
