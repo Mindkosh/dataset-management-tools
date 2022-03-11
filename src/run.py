@@ -5,6 +5,7 @@ import tkinter.font as font
 from tkinter.ttk import Progressbar
 from imageCanvas import ImageCanvas
 import utils
+from gallery import Gallery
 import random
 import tkinter as tk
 from tkinter import ttk
@@ -15,6 +16,7 @@ class MainWindow:
 
     def __init__(self):
         self.ws = Tk()
+        self.img_list = []
         self.height = min(1200, self.ws.winfo_screenwidth())
         self.width = min(900, self.ws.winfo_screenheight())
 
@@ -37,21 +39,21 @@ class MainWindow:
         self.canvas_obj = ImageCanvas(self.imageFrame, self.ws, self.height, self.width, self.image_number)
 
         self.myFont = font.Font(size=12)
-        self.btn3 = Button(self.controlsFrame, text="Previous", command=self.canvas_obj.previous_image, bg='#0052cc',
-                           fg='#ffffff', pady=8, cursor="hand1")
-        self.btn3["font"] = self.myFont
-        self.btn3.grid(row=0, column=0)
-
-        self.btn4 = Button(self.controlsFrame, text="Next", command=self.canvas_obj.next_image, bg='#0052cc',
-                           fg='#ffffff', pady=8, cursor="hand1")
-        self.btn4["font"] = self.myFont
-        self.btn4.grid(row=0, column=2)
-        self.ws.bind('<Configure>', self.canvas_obj.onResize)
-
-        # self.btn5 = Button(self.controlsFrame, text="Reset Size", command=self.canvas_obj.resetSize, bg='#0052cc',
+        # self.btn3 = Button(self.controlsFrame, text="Previous", command=self.canvas_obj.previous_image, bg='#0052cc',
         #                    fg='#ffffff', pady=8, cursor="hand1")
-        # self.btn5["font"] = self.myFont
-        # self.btn5.grid(row=1, column=1)
+        # self.btn3["font"] = self.myFont
+        # self.btn3.grid(row=0, column=0)
+        #
+        # self.btn4 = Button(self.controlsFrame, text="Next", command=self.canvas_obj.next_image, bg='#0052cc',
+        #                    fg='#ffffff', pady=8, cursor="hand1")
+        # self.btn4["font"] = self.myFont
+        # self.btn4.grid(row=0, column=2)
+        # self.ws.bind('<Configure>', self.canvas_obj.onResize)
+        #
+        self.btn5 = Button(self.controlsFrame, text="View Gallery", command=self.runGallery, bg='#0052cc',
+                           fg='#ffffff', pady=8, cursor="hand1")
+        self.btn5["font"] = self.myFont
+        self.btn5.grid(row=1, column=1)
 
         self.createMenu()
         self.v = DoubleVar()
@@ -59,14 +61,24 @@ class MainWindow:
                             variable=self.v, command=self.canvas_obj.control)
         self.scroll.set(1)
         self.scroll.grid(row=15, column=1, columnspan=1, sticky='ew')
+        self.runGallery()
+
+    def selectImage(self, img_index):
+        self.canvas_obj.updateImage(img_index)
 
     def aboutWindow(self):
         print("Menu option clicked")
 
+    def runGallery(self):
+        self.img_list = self.canvas_obj.getImgList()
+        gallery = Gallery(self.img_list, self.selectImage)
+        gallery.run()
+
     def load_from_dataset_file(self):
         self.popup_bonus()
         self.ws.update()
-        if self.canvas_obj.load_from_datumaro_dataset() is True:
+        self.img_list = self.canvas_obj.load_from_datumaro_dataset()
+        if self.img_list[0] is True:
             self.popup_window.destroy()
             self.filemenu.entryconfig(2, state="normal")
             self.ws.update()
@@ -75,7 +87,8 @@ class MainWindow:
         # self.popup_bonus()
         # self.ws.update()
         # time.sleep(3)
-        if self.canvas_obj.update_img_list() is True:
+        self.img_list = self.canvas_obj.update_img_list()
+        if self.img_list[0] is True:
             self.filemenu.entryconfig(2, state="disabled")
             self.ws.update()
             # self.popup_window.destroy()

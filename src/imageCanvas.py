@@ -82,7 +82,7 @@ class ImageCanvas:
 
         self.text = self.canvas.create_text(0, 0, anchor='nw', text='Scroll to zoom')
 
-        self.imscale = 1.0  # scale for the canvaas image
+        self.imscale = 1.0  # scale for the canvas image
         self.delta = 0.75  # zoom magnitude
         self.imageid = None
 
@@ -117,6 +117,7 @@ class ImageCanvas:
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
     def show_image(self, event=None):
+        self.canvas.delete('all')
         if self.imageid:
             self.canvas.delete(self.imageid)
             self.imageid = None
@@ -125,8 +126,7 @@ class ImageCanvas:
         new_size = int(self.imscale * width), int(self.imscale * height)
         imagetk = ImageTk.PhotoImage(self.raw_img.resize(new_size))
         # Use self.text object to set proper coordinates
-        self.imageid = self.canvas.create_image(self.canvas.coords(self.text),
-                                                anchor='nw', image=imagetk)
+        self.imageid = self.canvas.create_image((0, 0), image=imagetk)
         # self.canvas.lower(self.imageid)  # set it into background
         self.canvas.imagetk = imagetk  # keep an extra reference to prevent garbage-collection
 
@@ -140,6 +140,7 @@ class ImageCanvas:
         return [width, height]
 
     def next_image(self):
+        self.canvas.delete('all')
         if self.img_index < self.number_of_images - 1:
             if self.imageid:
                 self.canvas.delete(self.imageid)
@@ -169,6 +170,7 @@ class ImageCanvas:
             # self.image_frame_indicator.set( str(self.img_index+1) + "/" + str(self.number_of_images))
 
     def previous_image(self):
+        self.canvas.delete('all')
         if self.img_index > 0:
             if self.imageid:
                 self.canvas.delete(self.imageid)
@@ -183,7 +185,7 @@ class ImageCanvas:
             self.raw_img = self.raw_img.resize((self.canvas_width, self.canvas_height), Image.ANTIALIAS)
             self.new_img = ImageTk.PhotoImage(self.raw_img)
 
-            self.canvas.itemconfig(self.img_container, image=self.new_img)
+            self.canvas.itemconfig(self.canvas.create_image(0, 0, image=self.new_img, anchor=NW), image=self.new_img)
             self.canvas.config(width=self.w, height=self.h)
             self.img_index -= 1
             self.image_frame_indicator.set(str(self.img_index + 1) + "/" + str(self.number_of_images))
@@ -225,7 +227,7 @@ class ImageCanvas:
             self.canvas.delete(self.img_container)
             self.image_frame_indicator.set(str(self.img_index + 1) + "/" + str(self.number_of_images))
 
-        return True
+        return [True, img_list]
 
     def load_from_datumaro_dataset(self, filename=None):
         if filename is None:
@@ -277,7 +279,6 @@ class ImageCanvas:
         self.canvas.create_image(0, 0, image=img2, anchor='nw')
 
     def control(self, n):
-        print(n)
         m = float(n)
         self.raw_img = self.label_object.get_labeled_image(self.img_index)
         enhancer = ImageEnhance.Brightness(self.raw_img)
@@ -287,3 +288,22 @@ class ImageCanvas:
         image_on_canvas = self.canvas.create_image(0, 0, image=img2, anchor=NW)
         self.canvas.itemconfig(image_on_canvas, image=img2)
         self.show_image()
+
+    def updateImage(self, img_index):
+        self.canvas.delete('all')
+        if self.label_object is not None:
+            self.raw_img = self.label_object.get_labeled_image(img_index)
+        else:
+            self.raw_img = Image.open(self.imgs[img_index])
+
+        new_size = int(self.imscale * self.raw_img.width), int(self.imscale * self.raw_img.height)
+        self.raw_img = self.raw_img.resize(new_size, Image.ANTIALIAS)
+        self.new_img = ImageTk.PhotoImage(self.raw_img)
+
+        self.canvas.itemconfig(self.canvas.create_image((0, 0), image=self.new_img), image=self.new_img)
+        self.canvas.config(width=self.w, height=self.h)
+        self.img_index = img_index
+        self.image_frame_indicator.set(str(img_index+1) + "/" + str(self.number_of_images))
+
+    def getImgList(self):
+        return self.imgs
