@@ -101,16 +101,25 @@ class ImageCanvas:
     def wheel(self, event):
         scale = 1.0
         # Respond to Linux (event.num) or Windows (event.delta) wheel event
-        if event.num == 5 or event.delta == -120:
+        if event.delta == -120:
             scale *= self.delta
             self.imscale *= self.delta
-        if event.num == 4 or event.delta == 120:
+        if event.delta == 120:
             scale /= self.delta
             self.imscale /= self.delta
         # Rescale all canvas objects
-        x = self.canvas.canvasx(event.x)
-        y = self.canvas.canvasy(event.y)
-        self.canvas.scale('all', x, y, scale, scale)
+        self.x = self.canvas.canvasx(event.x)
+        self.y = self.canvas.canvasy(event.y)
+        self.canvas.scale('all', self.x, self.y, scale, scale)
+        self.show_image()
+        self.canvas.configure(scrollregion=self.canvas.bbox('all'))
+
+    def loadScale(self, scale, x, y):
+        # Rescale all canvas objects
+        self.imscale = scale
+        self.x = self.canvas.canvasx(x)
+        self.y = self.canvas.canvasy(y)
+        self.canvas.scale('all', self.x, self.y, scale/self.delta, scale/self.delta)
         self.show_image()
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
