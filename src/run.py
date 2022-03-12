@@ -60,7 +60,7 @@ class MainWindow:
         self.scroll = Scale(self.ws, orient=HORIZONTAL, resolution=0.1, label='Brightness', from_=0, to=2,
                             variable=self.v, command=self.canvas_obj.control)
         self.scroll.set(1)
-        self.scroll.grid(row=15, column=1, columnspan=1, sticky='ew')
+        self.scroll.grid(row=1, column=0, sticky='e')
         self.runGallery()
 
     def selectImage(self, img_index):
