@@ -13,6 +13,7 @@ from PIL import Image, ImageTk
 from tkinter.filedialog import asksaveasfile
 import json
 
+
 class MainWindow:
 
     def __init__(self):
@@ -63,7 +64,7 @@ class MainWindow:
         self.scroll.set(1)
         self.scroll.grid(row=1, column=0, sticky='e')
         self.loadSettings()
-        #self.runGallery()
+        # self.runGallery()
 
     def selectImage(self, img_index):
         self.canvas_obj.updateImage(img_index)
@@ -102,27 +103,26 @@ class MainWindow:
             self.progress_bar_window.destroy()
 
     def save_settings_dialog(self):
-       		#// pass
-        #f = asksaveasfile(initialfile = 'Untitled.json',
-		#defaultextension=".json",filetypes=[("All Files","*.*"),("json","*.json")])
-        y1,y2=self.canvas_obj.canvas.yview();
-        x1,x2=self.canvas_obj.canvas.xview();
-        dictionary={
-        "image_brightness" : self.scroll.get(),
-        "zoom_scale":self.canvas_obj.imscale,
-        "image_index" : self.canvas_obj.img_index,
-        "x": self.canvas_obj.x,
-        "y": self.canvas_obj.y,
-        "yview" : y1,
-        "xview" : x1
+        # pass
+        # f = asksaveasfile(initialfile = 'Untitled.json',
+        # defaultextension=".json",filetypes=[("All Files","*.*"),("json","*.json")])
+        y1, y2 = self.canvas_obj.canvas.yview()
+        x1, x2 = self.canvas_obj.canvas.xview()
+        dictionary = {
+            "image_brightness": self.scroll.get(),
+            "zoom_scale": self.canvas_obj.imscale,
+            "image_index": self.canvas_obj.img_index,
+            "x": self.canvas_obj.x,
+            "y": self.canvas_obj.y,
+            "yview": y1,
+            "xview": x1
         }
-        with open("sample.json", "w") as outfile:
-        	json.dump(dictionary, outfile)
-
+        with open(os.path.join(os.getcwd(), 'src', "sample.json"), "w") as outfile:
+            json.dump(dictionary, outfile)
 
     def loadSettings(self):
-        
-        f = open('sample.json')
+
+        f = open(os.path.join(os.getcwd(), 'src', 'sample.json'))
         data = json.load(f)
         print(data)
         self.scroll.set(data['image_brightness'])
@@ -149,7 +149,8 @@ class MainWindow:
 
         self.filemenu.add_separator()
 
-        self.filemenu.add_command(label="Save settings", command=self.save_settings_dialog, font=("Arial", 16), state="normal")
+        self.filemenu.add_command(label="Save settings", command=self.save_settings_dialog, font=("Arial", 16),
+                                  state="normal")
         self.filemenu.add_command(label="Exit", command=self.ws.quit, font=("Arial", 16))
         self.menubar.add_cascade(label="File", menu=self.filemenu, font=("Arial", 16))
 
