@@ -67,6 +67,8 @@ class ImageCanvas:
         self.load_from_datumaro_dataset(self.default_dataset_file)
         vbar.configure(command=self.canvas.yview)  # bind scrollbars to the canvas
         hbar.configure(command=self.canvas.xview)
+        
+        
 
         self.ws.rowconfigure(0, weight=1)
         self.ws.columnconfigure(0, weight=1)
@@ -97,20 +99,34 @@ class ImageCanvas:
     def move_to(self, event):
         ''' Drag (move) canvas to the new position '''
         self.canvas.scan_dragto(event.x, event.y, gain=1)
+        # self.y1,self.y2=self.canvas.yview()
+        # self.x1,self.x2=self.canvas.xview()
+        # print(self.canvas.yview())
 
     def wheel(self, event):
         scale = 1.0
         # Respond to Linux (event.num) or Windows (event.delta) wheel event
-        if event.num == 5 or event.delta == -120:
+        if event.delta == -120:
             scale *= self.delta
             self.imscale *= self.delta
-        if event.num == 4 or event.delta == 120:
+        if event.delta == 120:
             scale /= self.delta
             self.imscale /= self.delta
         # Rescale all canvas objects
-        x = self.canvas.canvasx(event.x)
-        y = self.canvas.canvasy(event.y)
-        self.canvas.scale('all', x, y, scale, scale)
+        self.x = self.canvas.canvasx(event.x)
+        self.y = self.canvas.canvasy(event.y)
+        self.canvas.scale('all', self.x, self.y, scale, scale)
+        self.show_image()
+        self.canvas.configure(scrollregion=self.canvas.bbox('all'))
+        #self.y1,self.y2=self.canvas.yview()
+        #self.x1,self.x2=self.canvas.xview()
+
+    def loadScale(self, scale, x, y):
+        # Rescale all canvas objects
+        self.imscale = scale
+        self.x = self.canvas.canvasx(x)
+        self.y = self.canvas.canvasy(y)
+        self.canvas.scale('all', self.x, self.y, scale/self.delta, scale/self.delta)
         self.show_image()
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
@@ -190,6 +206,7 @@ class ImageCanvas:
 
     def update_img_list(self, img_list=None):
         if img_list is None:
+            print("none")
             self.img_dir = filedialog.askdirectory(title="Select Image Directory", initialdir=os.getcwd())
             if self.img_dir == ():
                 return
