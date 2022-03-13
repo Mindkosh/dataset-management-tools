@@ -63,7 +63,7 @@ class MainWindow:
         self.scroll.set(1)
         self.scroll.grid(row=1, column=0, sticky='e')
         self.loadSettings()
-        self.runGallery()
+        #self.runGallery()
 
     def selectImage(self, img_index):
         self.canvas_obj.updateImage(img_index)
@@ -105,28 +105,37 @@ class MainWindow:
        		#// pass
         #f = asksaveasfile(initialfile = 'Untitled.json',
 		#defaultextension=".json",filetypes=[("All Files","*.*"),("json","*.json")])
-        weatherString='C:/Users/prana/Desktop/GIT stuff/dataset-management-tools/src/sample.json'
+        y1,y2=self.canvas_obj.canvas.yview();
+        x1,x2=self.canvas_obj.canvas.xview();
         dictionary={
         "image_brightness" : self.scroll.get(),
         "zoom_scale":self.canvas_obj.imscale,
         "image_index" : self.canvas_obj.img_index,
         "x": self.canvas_obj.x,
-        "y": self.canvas_obj.y
+        "y": self.canvas_obj.y,
+        "yview" : y1,
+        "xview" : x1
         }
         with open("sample.json", "w") as outfile:
         	json.dump(dictionary, outfile)
 
 
     def loadSettings(self):
-        weatherString='C:/Users/prana/Desktop/GIT stuff/dataset-management-tools/src/sample.json'
-        f = open(weatherString)
+        
+        f = open('sample.json')
         data = json.load(f)
         print(data)
         self.scroll.set(data['image_brightness'])
         self.canvas_obj.control(self.scroll.get())
         self.canvas_obj.updateImage(data['image_index'])
         self.canvas_obj.loadScale(data['zoom_scale'], data['x'], data['y'])
-        
+        self.canvas_obj.canvas.yview_moveto(data['yview'])
+        self.canvas_obj.canvas.xview_moveto(data['xview'])
+
+    # def polygon(self):
+    # 	self.img_list=self.canvas_obj.getImgList1()
+    # 	gallery = Gallery(self.img_list, self.selectImage)
+    # 	gallery.run()
 
     def createMenu(self):
         # Menu
@@ -147,6 +156,13 @@ class MainWindow:
         self.helpmenu = Menu(self.menubar, tearoff=0)
         self.helpmenu.add_command(label="About", command=self.aboutWindow, font=("Arial", 16))
         self.menubar.add_cascade(label="Help", menu=self.helpmenu, font=("Arial", 16))
+
+        self.annotationsmenu = Menu(self.menubar, tearoff=0)
+        self.annotationsmenu.add_command(label="Bounding Box", command=self.aboutWindow, font=("Arial", 16))
+        self.annotationsmenu.add_command(label="Polyline", command=self.aboutWindow, font=("Arial", 16))
+        self.annotationsmenu.add_command(label="Polygon", command=self.aboutWindow, font=("Arial", 16))
+        self.menubar.add_cascade(label="Annotations", menu=self.annotationsmenu, font=("Arial", 16))
+
         self.ws.config(menu=self.menubar)
 
     def popup_bonus(self):
