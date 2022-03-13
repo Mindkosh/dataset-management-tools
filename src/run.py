@@ -132,11 +132,6 @@ class MainWindow:
         self.canvas_obj.canvas.yview_moveto(data['yview'])
         self.canvas_obj.canvas.xview_moveto(data['xview'])
 
-    # def polygon(self):
-    # 	self.img_list=self.canvas_obj.getImgList1()
-    # 	gallery = Gallery(self.img_list, self.selectImage)
-    # 	gallery.run()
-
     def createMenu(self):
         # Menu
         self.menubar = Menu(self.ws)
@@ -160,7 +155,7 @@ class MainWindow:
         self.annotationsmenu = Menu(self.menubar, tearoff=0)
         self.annotationsmenu.add_command(label="Bounding Box", command=self.aboutWindow, font=("Arial", 16))
         self.annotationsmenu.add_command(label="Polyline", command=self.aboutWindow, font=("Arial", 16))
-        self.annotationsmenu.add_command(label="Polygon", command=self.aboutWindow, font=("Arial", 16))
+        self.annotationsmenu.add_command(label="Polygon", command=self.canvas_obj.load_polygon(), font=("Arial", 16))
         self.menubar.add_cascade(label="Annotations", menu=self.annotationsmenu, font=("Arial", 16))
 
         self.ws.config(menu=self.menubar)

@@ -322,3 +322,70 @@ class ImageCanvas:
 
     def getImgList(self):
         return self.imgs
+
+    def load_polygon(self):
+        if os.name == "nt":
+            self.default_dataset_file1 = os.path.join(utils.get_assets_dir(),
+                                                     "dataset\\annotations\\instances_default_polygon.json")
+        else:
+            self.default_dataset_file1 = os.path.join(utils.get_assets_dir(),
+                                                     "dataset/annotations/instances_default_polygon.json")
+        print(self.default_dataset_file1)
+        self.load_from_datumaro_dataset1(self.default_dataset_file1)
+
+    def update_img_list1(self,img_list1):
+        if img_list1 is None:
+            print("none")
+            self.img_dir1 = filedialog.askdirectory(title="Select Image Directory", initialdir=os.getcwd())
+            if self.img_dir1 == ():
+                return
+
+            self.imgs1 = []
+            for i in os.listdir(self.img_dir1):
+                if os.path.splitext(i)[-1] in self.extension_list:
+                    self.imgs1.append(os.path.join(self.img_dir1, i))
+            self.label_object1 = None
+
+        else:
+            self.imgs1 = img_list1
+
+        self.img_index1 = 0
+        self.number_of_images1 = len(self.imgs1)
+
+        if self.number_of_images1 > 0:
+            if img_list1 is not None and self.label_object1 is not None:
+                self.raw_img1 = self.label_object1.get_labeled_image(0)
+            else:
+                self.raw_img1 = Image.open(self.imgs1[0])
+
+            self.w, self.h = self.calc_size(self.raw_img1.size)
+            self.raw_img1 = self.raw_img1.resize((self.w, self.h), Image.ANTIALIAS)
+            self.base_img1 = ImageTk.PhotoImage(self.raw_img1)
+            self.canvas.config(width=self.w, height=self.h)
+            self.img_container = self.canvas.create_image(
+                0,
+                0,
+                anchor=NW,
+                image=self.base_img1
+            )
+            self.canvas.delete(self.img_container)
+            self.image_frame_indicator1.set(str(self.img_index1 + 1) + "/" + str(self.number_of_images1))
+
+        return [True, img_list1]
+
+    def load_from_datumaro_dataset1(self, filename1=None):
+        if filename1 is None:
+            # labels_file = "/home/sdevgupta/tests/hh2/annotations/instances_default.json"
+            labels_file1 = filedialog.askopenfile(mode='r', filetypes=[('JSON Files', '*.json')],
+                                                 title="Select Dataset file", initialdir=os.getcwd()).name
+        else:
+            labels_file1 = filename1
+
+        try:
+            self.label_object1 = LabelDraw(labels_file1)
+            img_list1 = self.label_object1.get_image_list()
+            self.update_img_list1(img_list1)
+        except Exception as e:
+            print(e)
+            messagebox.showinfo("Error", "Could not parse Labels file"
+
