@@ -41,15 +41,15 @@ class MainWindow:
         self.canvas_obj = ImageCanvas(self.imageFrame, self.ws, self.height, self.width, self.image_number)
 
         self.myFont = font.Font(size=12)
-        # self.btn3 = Button(self.controlsFrame, text="Previous", command=self.canvas_obj.previous_image, bg='#0052cc',
-        #                    fg='#ffffff', pady=8, cursor="hand1")
-        # self.btn3["font"] = self.myFont
-        # self.btn3.grid(row=0, column=0)
-        #
-        # self.btn4 = Button(self.controlsFrame, text="Next", command=self.canvas_obj.next_image, bg='#0052cc',
-        #                    fg='#ffffff', pady=8, cursor="hand1")
-        # self.btn4["font"] = self.myFont
-        # self.btn4.grid(row=0, column=2)
+        self.btn3 = Button(self.controlsFrame, text="Previous", command=self.canvas_obj.previous_image, bg='#0052cc',
+                           fg='#ffffff', pady=8, cursor="hand1")
+        self.btn3["font"] = self.myFont
+        self.btn3.grid(row=0, column=0)
+
+        self.btn4 = Button(self.controlsFrame, text="Next", command=self.canvas_obj.next_image, bg='#0052cc',
+                           fg='#ffffff', pady=8, cursor="hand1")
+        self.btn4["font"] = self.myFont
+        self.btn4.grid(row=0, column=2)
         # self.ws.bind('<Configure>', self.canvas_obj.onResize)
         #
         self.btn5 = Button(self.controlsFrame, text="View Gallery", command=self.runGallery, bg='#0052cc',
