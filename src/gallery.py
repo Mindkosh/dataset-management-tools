@@ -13,7 +13,7 @@ class Gallery:
         self.imageFrame = tkinter.Frame(self.gallery)
         self.imageFrame.grid(row=0, column=0)
         self.vbar = tkinter.Scrollbar(self.gallery, orient='vertical')
-        self.vbar.grid(row=0, column=2)
+        self.vbar.grid(row=0, column=3)
         # if img_list is not None:
         #     rows = int(len(img_list)/3) + 1
         #     for i in range(0, rows):
@@ -35,10 +35,10 @@ class Gallery:
         self.all_labels = []
         if img_list is not None:
             for i in range(len(img_list)):
-                image = ImageTk.PhotoImage(Image.open(img_list[i]).resize((200, 100), Image.ANTIALIAS))
+                image = ImageTk.PhotoImage(Image.open(img_list[i]).resize((150, 100), Image.ANTIALIAS))
                 label = tkinter.Button(self.imageFrame, image=image, command=lambda c=i: self.select(c))
                 label.photo = image
-                label.grid(row=int(i/2), column=i % 2)
+                label.grid(row=int(i/3), column=i % 3)
                 self.all_labels.append(label)
 
     def select(self, index):
