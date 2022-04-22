@@ -10,7 +10,10 @@ class LabelDraw():
         try:
             self.dataset = Dataset.import_from(labels_file, 'coco')
         except Exception as e:
-            print(e)
+            try:
+                self.dataset = Dataset.import_from(labels_file, 'cvat')
+            except Exception as e:
+                print(e)
 
         self.labels = [i.name for i in list(self.dataset.categories().values())[0]]
         self.annotations = []
@@ -42,14 +45,13 @@ class LabelDraw():
 
         for label in self.annotations[image_index]["label_items"]:
             text_points = [label["points"][0]]
+            #print(label["points"])
             text_points.append(max(label["points"][1] - 25, 0))
             img1.text(text_points, label["label_name"], (255, 255, 255), font=font, stroke_width=1)
 
             if len(label["points"]) == 4:
                 img1.rectangle(label["points"], outline="#f11", width=2)
             else:
-                for idx in range(len(label["points"])):
-                    img1.line([label["points"][idx], label["points"][(idx + 1) % len(label["points"])]], fill="#f11",
-                              width=2)
+                img1.line(label["points"], fill="#ff0000",width=3)
 
         return img

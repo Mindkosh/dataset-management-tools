@@ -154,8 +154,8 @@ class MainWindow:
 
         self.annotationsmenu = Menu(self.menubar, tearoff=0)
         self.annotationsmenu.add_command(label="Bounding Box", command=self.aboutWindow, font=("Arial", 16))
-        self.annotationsmenu.add_command(label="Polyline", command=self.aboutWindow, font=("Arial", 16))
-        self.annotationsmenu.add_command(label="Polygon", command=self.canvas_obj.load_polygon(), font=("Arial", 16))
+        self.annotationsmenu.add_command(label="Polyline", command=self.canvas_obj.load_polyline, font=("Arial", 16))
+        self.annotationsmenu.add_command(label="Polygon", command=self.canvas_obj.load_polygon, font=("Arial", 16))
         self.menubar.add_cascade(label="Annotations", menu=self.annotationsmenu, font=("Arial", 16))
 
         self.ws.config(menu=self.menubar)
