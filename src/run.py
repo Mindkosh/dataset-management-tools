@@ -59,11 +59,17 @@ class MainWindow:
 
         self.createMenu()
         self.v = DoubleVar()
+        self.v1 = DoubleVar()
         self.scroll = Scale(self.ws, orient=HORIZONTAL, resolution=0.1, label='Brightness', from_=0, to=2,
                             variable=self.v, command=self.canvas_obj.control)
         self.scroll.set(1)
         self.scroll.grid(row=1, column=0, sticky='e')
-        self.loadSettings()
+
+        self.scroll1 = Scale(self.ws, orient=HORIZONTAL, resolution=1000, label='Color', from_=0, to=16777215,
+                            variable=self.v1, command=self.canvas_obj.colorPicker)
+        self.scroll1.set(16711680)
+        self.scroll1.grid(row=1, column=1, sticky='e')
+        # self.loadSettings()
         # self.runGallery()
 
     def selectImage(self, img_index):
@@ -103,7 +109,6 @@ class MainWindow:
             self.progress_bar_window.destroy()
 
     def save_settings_dialog(self):
-        # pass
         # f = asksaveasfile(initialfile = 'Untitled.json',
         # defaultextension=".json",filetypes=[("All Files","*.*"),("json","*.json")])
         y1, y2 = self.canvas_obj.canvas.yview()
@@ -121,7 +126,6 @@ class MainWindow:
             json.dump(dictionary, outfile)
 
     def loadSettings(self):
-
         f = open(os.path.join(os.getcwd(), 'src', 'sample.json'))
         data = json.load(f)
         print(data)
@@ -131,11 +135,6 @@ class MainWindow:
         self.canvas_obj.loadScale(data['zoom_scale'], data['x'], data['y'])
         self.canvas_obj.canvas.yview_moveto(data['yview'])
         self.canvas_obj.canvas.xview_moveto(data['xview'])
-
-    # def polygon(self):
-    # 	self.img_list=self.canvas_obj.getImgList1()
-    # 	gallery = Gallery(self.img_list, self.selectImage)
-    # 	gallery.run()
 
     def createMenu(self):
         # Menu
@@ -160,8 +159,8 @@ class MainWindow:
 
         self.annotationsmenu = Menu(self.menubar, tearoff=0)
         self.annotationsmenu.add_command(label="Bounding Box", command=self.aboutWindow, font=("Arial", 16))
-        self.annotationsmenu.add_command(label="Polyline", command=self.aboutWindow, font=("Arial", 16))
-        self.annotationsmenu.add_command(label="Polygon", command=self.aboutWindow, font=("Arial", 16))
+        self.annotationsmenu.add_command(label="Polyline", command=self.canvas_obj.load_polyline, font=("Arial", 16))
+        self.annotationsmenu.add_command(label="Polygon", command=self.canvas_obj.load_polygon, font=("Arial", 16))
         self.menubar.add_cascade(label="Annotations", menu=self.annotationsmenu, font=("Arial", 16))
 
         self.ws.config(menu=self.menubar)

@@ -322,3 +322,33 @@ class ImageCanvas:
 
     def getImgList(self):
         return self.imgs
+
+    def load_polygon(self):
+        if os.name == "nt":
+            self.default_dataset_file = os.path.join(utils.get_assets_dir(),
+                                                     "dataset\\annotations\\instances_default_polygon.json")
+        else:
+            self.default_dataset_file = os.path.join(utils.get_assets_dir(),
+                                                     "dataset/annotations/instances_default_polygon.json")
+        print(self.default_dataset_file)
+        self.load_from_datumaro_dataset(self.default_dataset_file)
+
+    def load_polyline(self):
+        if os.name == "nt":
+            self.default_dataset_file = os.path.join(utils.get_assets_dir(),
+                                                     "dataset\\annotations\\instances_default_polyline.json")
+        else:
+            self.default_dataset_file = os.path.join(utils.get_assets_dir(),
+                                                     "dataset/annotations/instances_default_polyline.json")
+        print(self.default_dataset_file)
+        self.load_from_datumaro_dataset(self.default_dataset_file)
+
+    def colorPicker(self, m):
+        col = (hex(int(m))).split('x')[1]
+        if len(col) != 6 and col != '0':
+            col = '0' + col
+        self.raw_img = self.label_object.get_labeled_image(self.img_index, outline="#" + col if col is not '0' else '#000')
+        img2 = ImageTk.PhotoImage(self.raw_img)
+        image_on_canvas = self.canvas.create_image(0, 0, image=img2, anchor=NW)
+        self.canvas.itemconfig(image_on_canvas, image=img2)
+        self.show_image()
