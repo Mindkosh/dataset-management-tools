@@ -109,7 +109,6 @@ class MainWindow:
             self.progress_bar_window.destroy()
 
     def save_settings_dialog(self):
-        # // pass
         # f = asksaveasfile(initialfile = 'Untitled.json',
         # defaultextension=".json",filetypes=[("All Files","*.*"),("json","*.json")])
         y1, y2 = self.canvas_obj.canvas.yview()
@@ -123,12 +122,11 @@ class MainWindow:
             "yview": y1,
             "xview": x1
         }
-        with open("sample.json", "w") as outfile:
+        with open(os.path.join(os.getcwd(), 'src', "sample.json"), "w") as outfile:
             json.dump(dictionary, outfile)
 
     def loadSettings(self):
-
-        f = open('sample.json')
+        f = open(os.path.join(os.getcwd(), 'src', 'sample.json'))
         data = json.load(f)
         print(data)
         self.scroll.set(data['image_brightness'])
