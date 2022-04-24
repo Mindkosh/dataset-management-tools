@@ -13,6 +13,7 @@ from PIL import Image, ImageTk
 from tkinter.filedialog import asksaveasfile
 import json
 
+
 class MainWindow:
 
     def __init__(self):
@@ -40,15 +41,15 @@ class MainWindow:
         self.canvas_obj = ImageCanvas(self.imageFrame, self.ws, self.height, self.width, self.image_number)
 
         self.myFont = font.Font(size=12)
-        # self.btn3 = Button(self.controlsFrame, text="Previous", command=self.canvas_obj.previous_image, bg='#0052cc',
-        #                    fg='#ffffff', pady=8, cursor="hand1")
-        # self.btn3["font"] = self.myFont
-        # self.btn3.grid(row=0, column=0)
-        #
-        # self.btn4 = Button(self.controlsFrame, text="Next", command=self.canvas_obj.next_image, bg='#0052cc',
-        #                    fg='#ffffff', pady=8, cursor="hand1")
-        # self.btn4["font"] = self.myFont
-        # self.btn4.grid(row=0, column=2)
+        self.btn3 = Button(self.controlsFrame, text="Previous", command=self.canvas_obj.previous_image, bg='#0052cc',
+                           fg='#ffffff', pady=8, cursor="hand1")
+        self.btn3["font"] = self.myFont
+        self.btn3.grid(row=0, column=0)
+
+        self.btn4 = Button(self.controlsFrame, text="Next", command=self.canvas_obj.next_image, bg='#0052cc',
+                           fg='#ffffff', pady=8, cursor="hand1")
+        self.btn4["font"] = self.myFont
+        self.btn4.grid(row=0, column=2)
         # self.ws.bind('<Configure>', self.canvas_obj.onResize)
         #
         self.btn5 = Button(self.controlsFrame, text="View Gallery", command=self.runGallery, bg='#0052cc',
@@ -58,12 +59,18 @@ class MainWindow:
 
         self.createMenu()
         self.v = DoubleVar()
+        self.v1 = DoubleVar()
         self.scroll = Scale(self.ws, orient=HORIZONTAL, resolution=0.1, label='Brightness', from_=0, to=2,
                             variable=self.v, command=self.canvas_obj.control)
         self.scroll.set(1)
         self.scroll.grid(row=1, column=0, sticky='e')
-        self.loadSettings()
-        #self.runGallery()
+
+        self.scroll1 = Scale(self.ws, orient=HORIZONTAL, resolution=1000, label='Color', from_=0, to=16777215,
+                            variable=self.v1, command=self.canvas_obj.colorPicker)
+        self.scroll1.set(16711680)
+        self.scroll1.grid(row=1, column=1, sticky='e')
+        # self.loadSettings()
+        # self.runGallery()
 
     def selectImage(self, img_index):
         self.canvas_obj.updateImage(img_index)
@@ -102,26 +109,25 @@ class MainWindow:
             self.progress_bar_window.destroy()
 
     def save_settings_dialog(self):
-       		#// pass
-        #f = asksaveasfile(initialfile = 'Untitled.json',
-		#defaultextension=".json",filetypes=[("All Files","*.*"),("json","*.json")])
-        y1,y2=self.canvas_obj.canvas.yview();
-        x1,x2=self.canvas_obj.canvas.xview();
-        dictionary={
-        "image_brightness" : self.scroll.get(),
-        "zoom_scale":self.canvas_obj.imscale,
-        "image_index" : self.canvas_obj.img_index,
-        "x": self.canvas_obj.x,
-        "y": self.canvas_obj.y,
-        "yview" : y1,
-        "xview" : x1
+        # // pass
+        # f = asksaveasfile(initialfile = 'Untitled.json',
+        # defaultextension=".json",filetypes=[("All Files","*.*"),("json","*.json")])
+        y1, y2 = self.canvas_obj.canvas.yview()
+        x1, x2 = self.canvas_obj.canvas.xview()
+        dictionary = {
+            "image_brightness": self.scroll.get(),
+            "zoom_scale": self.canvas_obj.imscale,
+            "image_index": self.canvas_obj.img_index,
+            "x": self.canvas_obj.x,
+            "y": self.canvas_obj.y,
+            "yview": y1,
+            "xview": x1
         }
         with open("sample.json", "w") as outfile:
-        	json.dump(dictionary, outfile)
-
+            json.dump(dictionary, outfile)
 
     def loadSettings(self):
-        
+
         f = open('sample.json')
         data = json.load(f)
         print(data)
@@ -144,7 +150,8 @@ class MainWindow:
 
         self.filemenu.add_separator()
 
-        self.filemenu.add_command(label="Save settings", command=self.save_settings_dialog, font=("Arial", 16), state="normal")
+        self.filemenu.add_command(label="Save settings", command=self.save_settings_dialog, font=("Arial", 16),
+                                  state="normal")
         self.filemenu.add_command(label="Exit", command=self.ws.quit, font=("Arial", 16))
         self.menubar.add_cascade(label="File", menu=self.filemenu, font=("Arial", 16))
 

@@ -38,7 +38,7 @@ class LabelDraw():
     def get_image_list(self):
         return self.image_list
 
-    def get_labeled_image(self, image_index):
+    def get_labeled_image(self, image_index, outline='#f11'):
         font = ImageFont.truetype(os.path.join(utils.get_assets_dir(), "Assistant-VariableFont_wght.ttf"), 20)
         img = Image.open(self.image_list[image_index])
         img1 = ImageDraw.Draw(img)
@@ -50,8 +50,8 @@ class LabelDraw():
             img1.text(text_points, label["label_name"], (255, 255, 255), font=font, stroke_width=1)
 
             if len(label["points"]) == 4:
-                img1.rectangle(label["points"], outline="#f11", width=2)
+                img1.rectangle(label["points"], outline=outline, width=2)
             else:
-                img1.line(label["points"], fill="#ff0000",width=3)
+                img1.line(label["points"], fill=outline,width=3)
 
         return img
