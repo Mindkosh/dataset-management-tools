@@ -265,12 +265,15 @@ class ImageCanvas:
             labeled_img = self.label_object.get_labeled_image(index)
 
             if os.name == "nt":
+                if not os.path.exists(os.path.join(utils.get_assets_dir(), "dataset\\exports")):
+                    os.mkdir(os.path.join(utils.get_assets_dir(), "dataset\\exports"))
                 output_path = os.path.join(utils.get_assets_dir(), "dataset\\exports",
                                            os.path.basename(self.imgs[index]))
             else:
+                if not os.path.exists(os.path.join(utils.get_assets_dir(), "dataset/exports")):
+                    os.mkdir(os.path.join(utils.get_assets_dir(), "dataset/exports"))
                 output_path = os.path.join(utils.get_assets_dir(), "dataset/exports",
                                            os.path.basename(self.imgs[index]))
-
             labeled_img.save(output_path)
             # Update progress bar
             time.sleep(1)

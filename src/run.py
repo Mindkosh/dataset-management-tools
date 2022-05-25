@@ -128,7 +128,6 @@ class MainWindow:
     def loadSettings(self):
         f = open(os.path.join(os.getcwd(), 'src', 'sample.json'))
         data = json.load(f)
-        print(data)
         self.scroll.set(data['image_brightness'])
         self.canvas_obj.control(self.scroll.get())
         self.canvas_obj.updateImage(data['image_index'])
