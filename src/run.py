@@ -8,7 +8,7 @@ import utils
 from gallery import Gallery
 import random
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from PIL import Image, ImageTk
 from tkinter.filedialog import asksaveasfile
 import json
@@ -103,9 +103,10 @@ class MainWindow:
             # self.popup_window.destroy()
 
     def export_labeled_images(self):
+        directory = filedialog.askdirectory(title='Select directory to export images', initialdir=os.getcwd())
         self.popup_progress_bar()
         self.ws.update()
-        if self.canvas_obj.export_images_with_labels(self.progress_bar) is True:
+        if self.canvas_obj.export_images_with_labels(self.progress_bar, directory) is True:
             self.progress_bar_window.destroy()
 
     def save_settings_dialog(self):

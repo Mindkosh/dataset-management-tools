@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw, ImageFont
 from datumaro.components.dataset import Dataset
 
 
-class LabelDraw():
+class LabelDraw:
     def __init__(self, labels_file):
         try:
             self.dataset = Dataset.import_from(labels_file, 'coco')
@@ -13,7 +13,13 @@ class LabelDraw():
             try:
                 self.dataset = Dataset.import_from(labels_file, 'cvat')
             except Exception as e:
-                print(e)
+                try:
+                    self.dataset = Dataset.import_from(labels_file, 'voc')
+                except Exception as e:
+                    try:
+                        self.dataset = Dataset.import_from(labels_file, 'mots')
+                    except Exception as e:
+                        print(e)
 
         self.labels = [i.name for i in list(self.dataset.categories().values())[0]]
         self.annotations = []

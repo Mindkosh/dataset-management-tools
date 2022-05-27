@@ -67,8 +67,6 @@ class ImageCanvas:
         self.load_from_datumaro_dataset(self.default_dataset_file)
         vbar.configure(command=self.canvas.yview)  # bind scrollbars to the canvas
         hbar.configure(command=self.canvas.xview)
-        
-        
 
         self.ws.rowconfigure(0, weight=1)
         self.ws.columnconfigure(0, weight=1)
@@ -118,15 +116,15 @@ class ImageCanvas:
         self.canvas.scale('all', self.x, self.y, scale, scale)
         self.show_image()
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
-        #self.y1,self.y2=self.canvas.yview()
-        #self.x1,self.x2=self.canvas.xview()
+        # self.y1,self.y2=self.canvas.yview()
+        # self.x1,self.x2=self.canvas.xview()
 
     def loadScale(self, scale, x, y):
         # Rescale all canvas objects
         self.imscale = scale
         self.x = self.canvas.canvasx(x)
         self.y = self.canvas.canvasy(y)
-        self.canvas.scale('all', self.x, self.y, scale/self.delta, scale/self.delta)
+        self.canvas.scale('all', self.x, self.y, scale / self.delta, scale / self.delta)
         self.show_image()
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
@@ -260,20 +258,23 @@ class ImageCanvas:
             print(e)
             messagebox.showinfo("Error", "Could not parse Labels file")
 
-    def export_images_with_labels(self, progress_bar):
+    def export_images_with_labels(self, progress_bar, directory=None):
         for index in range(self.number_of_images):
             labeled_img = self.label_object.get_labeled_image(index)
 
-            if os.name == "nt":
-                if not os.path.exists(os.path.join(utils.get_assets_dir(), "dataset\\exports")):
-                    os.mkdir(os.path.join(utils.get_assets_dir(), "dataset\\exports"))
-                output_path = os.path.join(utils.get_assets_dir(), "dataset\\exports",
-                                           os.path.basename(self.imgs[index]))
+            if directory is None:
+                if os.name == "nt":
+                    if not os.path.exists(os.path.join(utils.get_assets_dir(), "dataset\\exports")):
+                        os.mkdir(os.path.join(utils.get_assets_dir(), "dataset\\exports"))
+                    output_path = os.path.join(utils.get_assets_dir(), "dataset\\exports",
+                                               os.path.basename(self.imgs[index]))
+                else:
+                    if not os.path.exists(os.path.join(utils.get_assets_dir(), "dataset/exports")):
+                        os.mkdir(os.path.join(utils.get_assets_dir(), "dataset/exports"))
+                    output_path = os.path.join(utils.get_assets_dir(), "dataset/exports",
+                                               os.path.basename(self.imgs[index]))
             else:
-                if not os.path.exists(os.path.join(utils.get_assets_dir(), "dataset/exports")):
-                    os.mkdir(os.path.join(utils.get_assets_dir(), "dataset/exports"))
-                output_path = os.path.join(utils.get_assets_dir(), "dataset/exports",
-                                           os.path.basename(self.imgs[index]))
+                output_path = os.path.join(directory, os.path.basename(self.imgs[index]))
             labeled_img.save(output_path)
             # Update progress bar
             time.sleep(1)
@@ -289,7 +290,6 @@ class ImageCanvas:
     #     self.canvas.config(width=self.canvas_width, height=self.canvas_height)
 
     def onResize(self, event):
-        print(event.width, event.height)
         # resize the canvas
         img = Image.open(self.imgs[self.img_index])
         resized = img.resize((event.width, event.height), Image.ANTIALIAS)
@@ -321,7 +321,7 @@ class ImageCanvas:
         self.canvas.itemconfig(self.canvas.create_image((0, 0), image=self.new_img), image=self.new_img)
         self.canvas.config(width=self.w, height=self.h)
         self.img_index = img_index
-        self.image_frame_indicator.set(str(img_index+1) + "/" + str(self.number_of_images))
+        self.image_frame_indicator.set(str(img_index + 1) + "/" + str(self.number_of_images))
 
     def getImgList(self):
         return self.imgs
@@ -344,14 +344,42 @@ class ImageCanvas:
             self.default_dataset_file = os.path.join(utils.get_assets_dir(),
                                                      "dataset/annotations/instances_default_polyline.json")
         print(self.default_dataset_file)
-        self.load_from_datumaro_dataset(self.default_dataset_file)
+        self.getPolyLine()
 
     def colorPicker(self, m):
         col = (hex(int(m))).split('x')[1]
         if len(col) != 6 and col != '0':
             col = '0' + col
-        self.raw_img = self.label_object.get_labeled_image(self.img_index, outline="#" + col if col is not '0' else '#000')
+        self.raw_img = self.label_object.get_labeled_image(self.img_index,
+                                                           outline="#" + col if col is not '0' else '#000')
         img2 = ImageTk.PhotoImage(self.raw_img)
         image_on_canvas = self.canvas.create_image(0, 0, image=img2, anchor=NW)
         self.canvas.itemconfig(image_on_canvas, image=img2)
         self.show_image()
+
+    def getPolyLine(self):
+        self.canvas.delete('all')
+        img_list = []
+        for img in os.listdir(os.path.join(utils.get_assets_dir(), 'dataset', 'polyline')):
+            if os.name == "nt":
+                img_list.append(os.path.join(utils.get_assets_dir(), 'dataset\\polyline', img))
+            else:
+                img_list.append(os.path.join(utils.get_assets_dir(), 'dataset/polyline', img))
+        self.imgs = img_list
+        self.img_index = 0
+        self.number_of_images = len(self.imgs)
+        self.raw_img = Image.open(self.imgs[0])
+        self.w, self.h = self.calc_size(self.raw_img.size)
+        self.base_img = ImageTk.PhotoImage(self.raw_img)
+        self.canvas.config(width=self.w, height=self.h)
+        self.img_container = self.canvas.create_image(
+            0,
+            0,
+            anchor=NW,
+            image=self.base_img
+        )
+        self.canvas.delete(self.img_container)
+        self.image_frame_indicator.set(str(self.img_index + 1) + "/" + str(self.number_of_images))
+        self.label_object = None
+
+        return [True, img_list]

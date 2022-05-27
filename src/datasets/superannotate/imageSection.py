@@ -23,8 +23,7 @@ def get_image_dimensions(image_path):
 
 
 def _sa_to_coco_single(id_, annotation_json, image_dir):
-
-    image_commons = _prepare_single_image_commons_vector( id_, annotation_json['metadata'], image_dir )
+    image_commons = _prepare_single_image_commons_vector(id_, annotation_json['metadata'], image_dir)
     if image_commons is None:
         raise Exception("_prepare_single_image_commons_vector returned None")
 
@@ -33,11 +32,10 @@ def _sa_to_coco_single(id_, annotation_json, image_dir):
 
 
 def _prepare_single_image_commons_vector(id_, metadata, image_dir):
-
     ImgCommons = namedtuple('ImgCommons', ['image_info'])
 
     image_info = _make_image_info(
-        os.path.join( image_dir, metadata['name'] ), metadata['height'], metadata['width'], id_
+        os.path.join(image_dir, metadata['name']), metadata['height'], metadata['width'], id_
     )
 
     res = ImgCommons(image_info)
