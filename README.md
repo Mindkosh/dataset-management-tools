@@ -1,4 +1,6 @@
 Simple visualizer for 2D image annotations.
+
+
 Looking for a more sophisticated image annotation platform? Try the [Mindkosh image annotation patform](https://mindkosh.com/annotation-platform/image-annotation.html) for free.
 
 Run "python src/run.py" to run the tool 
