@@ -45,13 +45,11 @@ class ImageCanvas:
             width=canvas_width,
             height=canvas_height,
             xscrollcommand=hbar.set,
-            yscrollcommand=vbar.set
+            yscrollcommand=vbar.set,
+            bd=2
         )
         self.click = False
         self.canvas.grid(row=0, column=0)
-        # self.ws.bind('<Configure>', self.onResize)
-        # self.canvas_height = self.ws.winfo_reqheight()
-        # self.canvas_width = self.ws.winfo_reqwidth()
         self.extension_list = [".png", ".jpg", ".jpeg"]
         self.imgs = []
         self.label_object = None
@@ -63,22 +61,29 @@ class ImageCanvas:
         else:
             self.default_dataset_file = os.path.join(utils.get_assets_dir(),
                                                      "dataset/annotations/instances_default.json")
-        print(self.default_dataset_file)
+
         self.load_from_datumaro_dataset(self.default_dataset_file)
-        vbar.configure(command=self.canvas.yview)  # bind scrollbars to the canvas
+        
+        # bind scrollbars to the canvas
+        vbar.configure(command=self.canvas.yview)
         hbar.configure(command=self.canvas.xview)
 
         self.ws.rowconfigure(0, weight=1)
         self.ws.columnconfigure(0, weight=1)
+        
         # Bind events to the Canvas
-        self.canvas.bind('<Configure>', self.show_image)  # canvas is resized
+        # self.canvas.bind('<Configure>', self.show_image)  # canvas is resized
         self.canvas.bind('<ButtonPress-1>', self.move_from)
         self.canvas.bind('<B1-Motion>', self.move_to)
-        self.canvas.bind('<MouseWheel>', self.wheel)  # with Windows and MacOS, but not Linux
-        self.canvas.bind('<Button-5>', self.wheel)  # only with Linux, wheel scroll down
-        self.canvas.bind('<Button-4>', self.wheel)  # only with Linux, wheel scroll up
+        # with Windows and MacOS, but not Linux
+        self.canvas.bind('<MouseWheel>', self.wheel)
+        # only with Linux, wheel scroll down
+        self.canvas.bind('<Button-5>', self.wheel)
+        # only with Linux, wheel scroll up
+        self.canvas.bind('<Button-4>', self.wheel)
 
-        self.text = self.canvas.create_text(0, 0, anchor='nw', text='Scroll to zoom')
+        self.text = self.canvas.create_text(
+            0, 0, anchor='nw', text='Scroll to zoom')
 
         self.imscale = 1.0  # scale for the canvas image
         self.delta = 0.75  # zoom magnitude
@@ -86,7 +91,8 @@ class ImageCanvas:
 
         width, height = self.raw_img.size
         minsize, maxsize = 5, 20
-        self.img_container = self.canvas.create_rectangle(0, 0, self.canvas_width, self.canvas_height, width=0)
+        self.img_container = self.canvas.create_rectangle(
+            0, 0, self.canvas_width, self.canvas_height, width=0)
         self.show_image()
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
@@ -97,34 +103,53 @@ class ImageCanvas:
     def move_to(self, event):
         ''' Drag (move) canvas to the new position '''
         self.canvas.scan_dragto(event.x, event.y, gain=1)
-        # self.y1,self.y2=self.canvas.yview()
-        # self.x1,self.x2=self.canvas.xview()
-        # print(self.canvas.yview())
 
     def wheel(self, event):
         scale = 1.0
+
+        # 0 for up, 1 for down
+        scale_direction = None
+
         # Respond to Linux (event.num) or Windows (event.delta) wheel event
-        if event.delta == -120:
-            scale *= self.delta
-            self.imscale *= self.delta
-        if event.delta == 120:
-            scale /= self.delta
-            self.imscale /= self.delta
+        if hasattr(event, "num"):
+            if (event.num == 5):
+                # scroll up
+                scale_direction = 0
+            elif (event.num == 4):
+                # scroll down
+                scale_direction = 1
+
+        elif hasattr(event, "delta"):
+            if event.delta == -120:
+                # scroll up
+                scale_direction = 0
+            if event.delta == 120:
+                # scroll down
+                scale_direction = 1
+
+        if scale_direction == 0:
+            if self.imscale*self.delta >= 0.25:
+                scale = scale*self.delta
+                self.imscale *= self.delta
+        elif scale_direction == 1:
+            if self.imscale/self.delta <= 3:
+                scale = scale/self.delta
+                self.imscale /= self.delta
+
         # Rescale all canvas objects
         self.x = self.canvas.canvasx(event.x)
         self.y = self.canvas.canvasy(event.y)
-        self.canvas.scale('all', self.x, self.y, scale, scale)
+        # self.canvas.scale('all', self.x, self.y, scale, scale)
         self.show_image()
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
-        # self.y1,self.y2=self.canvas.yview()
-        # self.x1,self.x2=self.canvas.xview()
 
     def loadScale(self, scale, x, y):
         # Rescale all canvas objects
         self.imscale = scale
         self.x = self.canvas.canvasx(x)
         self.y = self.canvas.canvasy(y)
-        self.canvas.scale('all', self.x, self.y, scale / self.delta, scale / self.delta)
+        self.canvas.scale('all', self.x, self.y, scale /
+                          self.delta, scale / self.delta)
         self.show_image()
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
@@ -139,8 +164,8 @@ class ImageCanvas:
         imagetk = ImageTk.PhotoImage(self.raw_img.resize(new_size))
         # Use self.text object to set proper coordinates
         self.imageid = self.canvas.create_image((0, 0), image=imagetk)
-        # self.canvas.lower(self.imageid)  # set it into background
-        self.canvas.imagetk = imagetk  # keep an extra reference to prevent garbage-collection
+        # keep an extra reference to prevent garbage-collection
+        self.canvas.imagetk = imagetk
 
     def calc_size(self, size):
         if size[0] > size[1]:
@@ -152,60 +177,50 @@ class ImageCanvas:
         return [width, height]
 
     def next_image(self):
-        self.canvas.delete('all')
         if self.img_index < self.number_of_images - 1:
+            # self.canvas.delete('all')
             if self.imageid:
                 self.canvas.delete(self.imageid)
                 self.imageid = None
                 self.canvas.imagetk = None  # delete previous image from the canvas
             if self.label_object is not None:
-                self.raw_img = self.label_object.get_labeled_image(self.img_index + 1)
+                self.raw_img = self.label_object.get_labeled_image(
+                    self.img_index + 1)
             else:
                 self.raw_img = Image.open(self.imgs[self.img_index + 1])
-            self.w, self.h = self.raw_img.size
-            self.canvas.config(width=self.w, height=self.h)
+
+            # self.w, self.h = self.raw_img.size
+            # self.canvas.config(width=self.w, height=self.h)
             self.img_index = self.img_index + 1
             self.show_image()
-            self.image_frame_indicator.set(str(self.img_index + 1) + "/" + str(self.number_of_images))
-            # if self.label_object is not None:
-            #     self.raw_img = self.label_object.get_labeled_image(self.img_index+1)
-            # else:
-            #     self.raw_img = Image.open( self.imgs[self.img_index+1] )
-
-            # self.w, self.h = self.calc_size( self.raw_img.size )
-            # self.raw_img = self.raw_img.resize((self.w, self.h), Image.ANTIALIAS)
-            # self.new_img = ImageTk.PhotoImage( self.raw_img )
-
-            # self.canvas.itemconfig( self.img_container, image=self.new_img )
-            # self.canvas.config(width=self.w, height=self.h)
-            # self.img_index+=1
-            # self.image_frame_indicator.set( str(self.img_index+1) + "/" + str(self.number_of_images))
+            self.image_frame_indicator.set(
+                str(self.img_index + 1) + "/" + str(self.number_of_images))
 
     def previous_image(self):
-        self.canvas.delete('all')
         if self.img_index > 0:
+            # self.canvas.delete('all')
             if self.imageid:
                 self.canvas.delete(self.imageid)
                 self.imageid = None
                 self.canvas.imagetk = None  # delete previous image from the canvas
             if self.label_object is not None:
-                self.raw_img = self.label_object.get_labeled_image(self.img_index - 1)
+                self.raw_img = self.label_object.get_labeled_image(
+                    self.img_index - 1)
             else:
                 self.raw_img = Image.open(self.imgs[self.img_index - 1])
 
-            self.w, self.h = self.calc_size(self.raw_img.size)
-            self.raw_img = self.raw_img.resize((self.canvas_width, self.canvas_height), Image.ANTIALIAS)
-            self.new_img = ImageTk.PhotoImage(self.raw_img)
-
-            self.canvas.itemconfig(self.canvas.create_image(0, 0, image=self.new_img, anchor=NW), image=self.new_img)
-            self.canvas.config(width=self.w, height=self.h)
-            self.img_index -= 1
-            self.image_frame_indicator.set(str(self.img_index + 1) + "/" + str(self.number_of_images))
+            # self.w, self.h = self.raw_img.size
+            # self.canvas.config(width=self.w, height=self.h)
+            self.img_index = self.img_index - 1
+            self.show_image()
+            self.image_frame_indicator.set(
+                str(self.img_index + 1) + "/" + str(self.number_of_images))
 
     def update_img_list(self, img_list=None):
         if img_list is None:
             print("none")
-            self.img_dir = filedialog.askdirectory(title="Select Image Directory", initialdir=os.getcwd())
+            self.img_dir = filedialog.askdirectory(
+                title="Select Image Directory", initialdir=os.getcwd())
             if self.img_dir == ():
                 return
 
@@ -228,9 +243,11 @@ class ImageCanvas:
                 self.raw_img = Image.open(self.imgs[0])
 
             self.w, self.h = self.calc_size(self.raw_img.size)
-            self.raw_img = self.raw_img.resize((self.w, self.h), Image.ANTIALIAS)
+            self.raw_img = self.raw_img.resize(
+                (self.w, self.h), Image.LANCZOS)
             self.base_img = ImageTk.PhotoImage(self.raw_img)
-            self.canvas.config(width=self.w, height=self.h)
+            print(self.w, self.h)
+            # self.canvas.config(width=self.w, height=self.h)
             self.img_container = self.canvas.create_image(
                 0,
                 0,
@@ -238,13 +255,13 @@ class ImageCanvas:
                 image=self.base_img
             )
             self.canvas.delete(self.img_container)
-            self.image_frame_indicator.set(str(self.img_index + 1) + "/" + str(self.number_of_images))
+            self.image_frame_indicator.set(
+                str(self.img_index + 1) + "/" + str(self.number_of_images))
 
         return [True, img_list]
 
     def load_from_datumaro_dataset(self, filename=None):
         if filename is None:
-            # labels_file = "/home/sdevgupta/tests/hh2/annotations/instances_default.json"
             labels_file = filedialog.askopenfile(mode='r', filetypes=[('JSON Files', '*.json')],
                                                  title="Select Dataset file", initialdir=os.getcwd()).name
         else:
@@ -265,36 +282,36 @@ class ImageCanvas:
             if directory is None:
                 if os.name == "nt":
                     if not os.path.exists(os.path.join(utils.get_assets_dir(), "dataset\\exports")):
-                        os.mkdir(os.path.join(utils.get_assets_dir(), "dataset\\exports"))
+                        os.mkdir(os.path.join(
+                            utils.get_assets_dir(), "dataset\\exports"))
                     output_path = os.path.join(utils.get_assets_dir(), "dataset\\exports",
                                                os.path.basename(self.imgs[index]))
                 else:
                     if not os.path.exists(os.path.join(utils.get_assets_dir(), "dataset/exports")):
-                        os.mkdir(os.path.join(utils.get_assets_dir(), "dataset/exports"))
+                        os.mkdir(os.path.join(
+                            utils.get_assets_dir(), "dataset/exports"))
                     output_path = os.path.join(utils.get_assets_dir(), "dataset/exports",
                                                os.path.basename(self.imgs[index]))
             else:
-                output_path = os.path.join(directory, os.path.basename(self.imgs[index]))
+                output_path = os.path.join(
+                    directory, os.path.basename(self.imgs[index]))
             labeled_img.save(output_path)
+
             # Update progress bar
             time.sleep(1)
-            progress_bar['value'] += int(200 * float(index + 1) / self.number_of_images)
+            progress_bar['value'] += int(200 *
+                                         float(index + 1) / self.number_of_images)
             self.ws.update_idletasks()
         return True
-
-    # def resetSize(self):
-    #     print(self.canvas_width, self.canvas_height)
-    #     self.raw_img = self.raw_img.resize((self.canvas_width - 50, self.canvas_height - 50), Image.ANTIALIAS)
-    #     self.new_img = ImageTk.PhotoImage(self.raw_img)
-    #
-    #     self.canvas.config(width=self.canvas_width, height=self.canvas_height)
 
     def onResize(self, event):
         # resize the canvas
         img = Image.open(self.imgs[self.img_index])
-        resized = img.resize((event.width, event.height), Image.ANTIALIAS)
-        img2 = ImageTk.PhotoImage(resized)
-        self.canvas.create_image(0, 0, image=img2, anchor='nw')
+        # resized = img.resize((event.width, event.height), Image.LANCZOS)
+        # img2 = ImageTk.PhotoImage(resized)
+        # self.canvas.create_image(0, 0, image=img2, anchor='nw')
+        print(event.height)
+        self.canvas.configure(height=event.height-200, width=event.width-20)
 
     def control(self, n):
         m = float(n)
@@ -314,17 +331,29 @@ class ImageCanvas:
         else:
             self.raw_img = Image.open(self.imgs[img_index])
 
-        new_size = int(self.imscale * self.raw_img.width), int(self.imscale * self.raw_img.height)
-        self.raw_img = self.raw_img.resize(new_size, Image.ANTIALIAS)
+        new_size = int(
+            self.imscale * self.raw_img.width), int(self.imscale * self.raw_img.height)
+        self.raw_img = self.raw_img.resize(new_size, Image.LANCZOS)
         self.new_img = ImageTk.PhotoImage(self.raw_img)
 
-        self.canvas.itemconfig(self.canvas.create_image((0, 0), image=self.new_img), image=self.new_img)
+        self.canvas.itemconfig(self.canvas.create_image(
+            (0, 0), image=self.new_img), image=self.new_img)
         self.canvas.config(width=self.w, height=self.h)
         self.img_index = img_index
-        self.image_frame_indicator.set(str(img_index + 1) + "/" + str(self.number_of_images))
+        self.image_frame_indicator.set(
+            str(img_index + 1) + "/" + str(self.number_of_images))
 
     def getImgList(self):
         return self.imgs
+
+    def load_boundingbbox(self):
+        if os.name == "nt":
+            self.default_dataset_file = os.path.join(utils.get_assets_dir(),
+                                                     "dataset\\annotations\\instances_default.json")
+        else:
+            self.default_dataset_file = os.path.join(utils.get_assets_dir(),
+                                                     "dataset/annotations/instances_default.json")
+        self.load_from_datumaro_dataset(self.default_dataset_file)
 
     def load_polygon(self):
         if os.name == "nt":
@@ -333,7 +362,6 @@ class ImageCanvas:
         else:
             self.default_dataset_file = os.path.join(utils.get_assets_dir(),
                                                      "dataset/annotations/instances_default_polygon.json")
-        print(self.default_dataset_file)
         self.load_from_datumaro_dataset(self.default_dataset_file)
 
     def load_polyline(self):
@@ -343,7 +371,6 @@ class ImageCanvas:
         else:
             self.default_dataset_file = os.path.join(utils.get_assets_dir(),
                                                      "dataset/annotations/instances_default_polyline.json")
-        print(self.default_dataset_file)
         self.getPolyLine()
 
     def colorPicker(self, m):
@@ -351,7 +378,7 @@ class ImageCanvas:
         if len(col) != 6 and col != '0':
             col = '0' + col
         self.raw_img = self.label_object.get_labeled_image(self.img_index,
-                                                           outline="#" + col if col is not '0' else '#000')
+                                                           outline="#" + col if col != '0' else '#000')
         img2 = ImageTk.PhotoImage(self.raw_img)
         image_on_canvas = self.canvas.create_image(0, 0, image=img2, anchor=NW)
         self.canvas.itemconfig(image_on_canvas, image=img2)
@@ -360,11 +387,14 @@ class ImageCanvas:
     def getPolyLine(self):
         self.canvas.delete('all')
         img_list = []
-        for img in os.listdir(os.path.join(utils.get_assets_dir(), 'dataset', 'polyline')):
+        for img in os.listdir(os.path.join(utils.get_assets_dir(), 'dataset', 'images_polyline')):
             if os.name == "nt":
-                img_list.append(os.path.join(utils.get_assets_dir(), 'dataset\\polyline', img))
+                img_list.append(os.path.join(
+                    utils.get_assets_dir(), 'dataset\\images_polyline', img))
             else:
-                img_list.append(os.path.join(utils.get_assets_dir(), 'dataset/polyline', img))
+                img_list.append(os.path.join(
+                    utils.get_assets_dir(), 'dataset/images_polyline', img))
+
         self.imgs = img_list
         self.img_index = 0
         self.number_of_images = len(self.imgs)
@@ -379,7 +409,8 @@ class ImageCanvas:
             image=self.base_img
         )
         self.canvas.delete(self.img_container)
-        self.image_frame_indicator.set(str(self.img_index + 1) + "/" + str(self.number_of_images))
+        self.image_frame_indicator.set(
+            str(self.img_index + 1) + "/" + str(self.number_of_images))
         self.label_object = None
 
         return [True, img_list]

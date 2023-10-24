@@ -1,6 +1,7 @@
 import numpy as np
 import json
 
+
 def id2rgb(id_map):
     if isinstance(id_map, np.ndarray):
         id_map_copy = id_map.copy()

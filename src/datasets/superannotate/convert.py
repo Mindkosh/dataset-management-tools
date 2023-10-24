@@ -169,7 +169,7 @@ def sa_vector_to_coco_object_detection(instances, annot_id_generator, idx):
     return annotations_per_image
 
 
-def convert_sa_to_coco_and_save( fpath, class_path, outpath ):
+def convert_sa_to_coco_and_save(fpath, class_path, outpath):
     all_annotations = {}
 
     out_json = create_skeleton()
@@ -181,7 +181,7 @@ def convert_sa_to_coco_and_save( fpath, class_path, outpath ):
     image_id_generator = make_id_generator()
     annot_id_generator = make_id_generator()
 
-    image_dir = str( Path(fpath).parent / "images" )
+    image_dir = str(Path(fpath).parent / "images")
     with open(fpath, 'r') as fp:
         json_data = json.load(fp)
 
@@ -209,16 +209,14 @@ def convert_sa_to_coco_and_save( fpath, class_path, outpath ):
 
 
 if __name__ == '__main__':
-    # default_fpath = "/home/sdevgupta/superannotate_projects/ert/annotations.json"
-    # default_class_path = "/home/sdevgupta/superannotate_projects/ert/classes.json"
-    # default_outpath = "/home/sdevgupta/superannotate_projects/export/annotations_coco.json"
-    
-    parser = argparse.ArgumentParser( description='Convert Superannotate labels to COCO format' )
+
+    parser = argparse.ArgumentParser(
+        description='Convert Superannotate labels to COCO format')
     parser.add_argument(action='store', dest='fpath')
     parser.add_argument(action='store', dest='class_path')
     parser.add_argument(action='store', dest='outpath')
     args = parser.parse_args()
-    
+
     fpath = args.fpath
     class_path = args.class_path
     outpath = args.outpath

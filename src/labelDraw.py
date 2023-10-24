@@ -21,7 +21,8 @@ class LabelDraw:
                     except Exception as e:
                         print(e)
 
-        self.labels = [i.name for i in list(self.dataset.categories().values())[0]]
+        self.labels = [i.name for i in list(
+            self.dataset.categories().values())[0]]
         self.annotations = []
         self.image_list = []
         for item in self.dataset:
@@ -45,19 +46,19 @@ class LabelDraw:
         return self.image_list
 
     def get_labeled_image(self, image_index, outline='#f11'):
-        font = ImageFont.truetype(os.path.join(utils.get_assets_dir(), "Assistant-VariableFont_wght.ttf"), 20)
+        font = ImageFont.load_default(size=15)
         img = Image.open(self.image_list[image_index])
         img1 = ImageDraw.Draw(img)
 
         for label in self.annotations[image_index]["label_items"]:
             text_points = [label["points"][0]]
-            #print(label["points"])
-            text_points.append(max(label["points"][1] - 25, 0))
-            img1.text(text_points, label["label_name"], (255, 255, 255), font=font, stroke_width=1)
+            text_points.append(max(label["points"][1] - 20, 0))
+            img1.text(text_points, label["label_name"],
+                      (255, 255, 255), font)
 
             if len(label["points"]) == 4:
                 img1.rectangle(label["points"], outline=outline, width=2)
             else:
-                img1.line(label["points"], fill=outline,width=3)
+                img1.line(label["points"], fill=outline, width=2)
 
         return img
