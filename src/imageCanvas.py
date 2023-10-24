@@ -7,7 +7,6 @@ from tkinter import messagebox
 from PIL import ImageTk, Image, ImageEnhance
 from labelDraw import LabelDraw
 from tkinter import ttk
-import random
 import tkinter as tk
 
 
@@ -111,19 +110,19 @@ class ImageCanvas:
         scale_direction = None
 
         # Respond to Linux (event.num) or Windows (event.delta) wheel event
-        if hasattr(event, "num"):
-            if (event.num == 5):
-                # scroll up
-                scale_direction = 0
-            elif (event.num == 4):
-                # scroll down
-                scale_direction = 1
-
-        elif hasattr(event, "delta"):
+        if hasattr(event, "delta"):
             if event.delta == -120:
                 # scroll up
                 scale_direction = 0
             if event.delta == 120:
+                # scroll down
+                scale_direction = 1
+
+        elif hasattr(event, "num"):
+            if (event.num == 5):
+                # scroll up
+                scale_direction = 0
+            elif (event.num == 4):
                 # scroll down
                 scale_direction = 1
 
@@ -139,7 +138,6 @@ class ImageCanvas:
         # Rescale all canvas objects
         self.x = self.canvas.canvasx(event.x)
         self.y = self.canvas.canvasy(event.y)
-        # self.canvas.scale('all', self.x, self.y, scale, scale)
         self.show_image()
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
@@ -166,6 +164,7 @@ class ImageCanvas:
         self.imageid = self.canvas.create_image((0, 0), image=imagetk)
         # keep an extra reference to prevent garbage-collection
         self.canvas.imagetk = imagetk
+        self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
     def calc_size(self, size):
         if size[0] > size[1]:
@@ -178,7 +177,6 @@ class ImageCanvas:
 
     def next_image(self):
         if self.img_index < self.number_of_images - 1:
-            # self.canvas.delete('all')
             if self.imageid:
                 self.canvas.delete(self.imageid)
                 self.imageid = None
@@ -189,8 +187,6 @@ class ImageCanvas:
             else:
                 self.raw_img = Image.open(self.imgs[self.img_index + 1])
 
-            # self.w, self.h = self.raw_img.size
-            # self.canvas.config(width=self.w, height=self.h)
             self.img_index = self.img_index + 1
             self.show_image()
             self.image_frame_indicator.set(
@@ -198,7 +194,6 @@ class ImageCanvas:
 
     def previous_image(self):
         if self.img_index > 0:
-            # self.canvas.delete('all')
             if self.imageid:
                 self.canvas.delete(self.imageid)
                 self.imageid = None
@@ -209,8 +204,6 @@ class ImageCanvas:
             else:
                 self.raw_img = Image.open(self.imgs[self.img_index - 1])
 
-            # self.w, self.h = self.raw_img.size
-            # self.canvas.config(width=self.w, height=self.h)
             self.img_index = self.img_index - 1
             self.show_image()
             self.image_frame_indicator.set(

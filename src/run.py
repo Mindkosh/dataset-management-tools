@@ -26,7 +26,7 @@ class MainWindow:
         print(self.height)
         print(self.width)
 
-        self.ws.title('Explore Dataset')
+        self.ws.title('Browse image datasets')
         self.ws.tk.call('wm', 'iconphoto', self.ws._w,
                         PhotoImage(file=os.path.join(utils.get_assets_dir(), 'favicon.png')))
 
