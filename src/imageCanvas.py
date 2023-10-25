@@ -11,7 +11,6 @@ import tkinter as tk
 
 
 class AutoScrollbar(ttk.Scrollbar):
-
     def set(self, lo, hi):
         if float(lo) <= 0.0 and float(hi) >= 1.0:
             self.grid_remove()
@@ -87,8 +86,6 @@ class ImageCanvas:
         self.delta = 0.75  # zoom magnitude
         self.imageid = None
 
-        width, height = self.raw_img.size
-        minsize, maxsize = 5, 20
         self.img_container = self.canvas.create_rectangle(
             0, 0, self.canvas_width, self.canvas_height, width=0)
         self.show_image()
@@ -212,7 +209,6 @@ class ImageCanvas:
 
     def update_img_list(self, img_list=None):
         if img_list is None:
-            print("none")
             self.img_dir = filedialog.askdirectory(
                 title="Select Image Directory", initialdir=os.getcwd())
             if self.img_dir == ():
@@ -236,18 +232,19 @@ class ImageCanvas:
             else:
                 self.raw_img = Image.open(self.imgs[0])
 
-            self.w, self.h = self.calc_size(self.raw_img.size)
-            self.raw_img = self.raw_img.resize(
-                (self.w, self.h), Image.LANCZOS)
-            self.base_img = ImageTk.PhotoImage(self.raw_img)
+            # self.w, self.h = self.calc_size(self.raw_img.size)
+            # self.raw_img = self.raw_img.resize(
+            #     (self.w, self.h), Image.LANCZOS)
+            # self.base_img = ImageTk.PhotoImage(self.raw_img)
             
-            self.img_container = self.canvas.create_image(
-                0,
-                0,
-                anchor=NW,
-                image=self.base_img
-            )
-            self.canvas.delete(self.img_container)
+            # self.img_container = self.canvas.create_image(
+            #     0,
+            #     0,
+            #     anchor=NW,
+            #     image=self.base_img
+            # )
+            # self.canvas.delete(self.img_container)
+
             self.image_frame_indicator.set(
                 str(self.img_index + 1) + "/" + str(self.number_of_images))
 
@@ -350,6 +347,11 @@ class ImageCanvas:
             self.default_dataset_file = os.path.join(utils.get_assets_dir(),
                                                      "dataset/annotations/instances_default_polygon.json")
         self.load_from_datumaro_dataset(self.default_dataset_file)
+        self.getDataset("polygon")
+        self.img_container = self.canvas.create_rectangle(
+            0, 0, self.canvas_width, self.canvas_height, width=0)
+        self.show_image()
+        self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
     def load_polyline(self):
         if os.name == "nt":
@@ -358,7 +360,12 @@ class ImageCanvas:
         else:
             self.default_dataset_file = os.path.join(utils.get_assets_dir(),
                                                      "dataset/annotations/instances_default_polyline.json")
-        self.getPolyLine()
+        
+        self.getDataset("polyline")
+        self.img_container = self.canvas.create_rectangle(
+            0, 0, self.canvas_width, self.canvas_height, width=0)
+        self.show_image()
+        self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
     def colorPicker(self, m):
         col = (hex(int(m))).split('x')[1]
@@ -371,16 +378,25 @@ class ImageCanvas:
         self.canvas.itemconfig(image_on_canvas, image=img2)
         self.show_image()
 
-    def getPolyLine(self):
+    def getDataset(self, ty):
         self.canvas.delete('all')
         img_list = []
-        for img in os.listdir(os.path.join(utils.get_assets_dir(), 'dataset', 'images_polyline')):
-            if os.name == "nt":
-                img_list.append(os.path.join(
-                    utils.get_assets_dir(), 'dataset\\images_polyline', img))
-            else:
-                img_list.append(os.path.join(
-                    utils.get_assets_dir(), 'dataset/images_polyline', img))
+        if ty=="polyline":
+            for img in os.listdir(os.path.join(utils.get_assets_dir(), 'dataset', 'images_polyline')):
+                if os.name == "nt":
+                    img_list.append(os.path.join(
+                        utils.get_assets_dir(), 'dataset\\images_polyline', img))
+                else:
+                    img_list.append(os.path.join(
+                        utils.get_assets_dir(), 'dataset/images_polyline', img))
+        else:
+            for img in os.listdir(os.path.join(utils.get_assets_dir(), 'dataset', 'images_polygon')):
+                if os.name == "nt":
+                    img_list.append(os.path.join(
+                        utils.get_assets_dir(), 'dataset\\images_polygon', img))
+                else:
+                    img_list.append(os.path.join(
+                        utils.get_assets_dir(), 'dataset/images_polygon', img))
 
         self.imgs = img_list
         self.img_index = 0

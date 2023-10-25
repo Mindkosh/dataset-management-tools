@@ -6,13 +6,8 @@ from tkinter.ttk import Progressbar
 from imageCanvas import ImageCanvas
 import utils
 from gallery import Gallery
-import random
-import tkinter as tk
-from tkinter import ttk, filedialog
-from PIL import Image, ImageTk
-from tkinter.filedialog import asksaveasfile
+from tkinter import filedialog
 import json
-
 
 class MainWindow:
 
@@ -108,8 +103,8 @@ class MainWindow:
             self.progress_bar_window.destroy()
 
     def save_settings_dialog(self):
-        y1, y2 = self.canvas_obj.canvas.yview()
-        x1, x2 = self.canvas_obj.canvas.xview()
+        y1, _ = self.canvas_obj.canvas.yview()
+        x1, _ = self.canvas_obj.canvas.xview()
         settings_obj = {
             "image_brightness": self.scroll.get(),
             "zoom_scale": self.canvas_obj.imscale,
@@ -135,40 +130,40 @@ class MainWindow:
         self.menubar = Menu(self.ws)
         self.filemenu = Menu(self.menubar, tearoff=0)
         self.filemenu.add_command(label="Load from Dataset file", command=self.load_from_dataset_file,
-                                  font=("Arial", 15))
+                                  font=("Arial", 12))
         self.filemenu.add_command(
-            label="Load Image Directory", command=self.load_from_directory, font=("Arial", 15))
+            label="Load Image Directory", command=self.load_from_directory, font=("Arial", 12))
         self.filemenu.add_command(label="Export Images with labels", command=self.export_labeled_images,
-                                  font=("Arial", 15), state="normal")
+                                  font=("Arial", 12), state="normal")
 
         self.filemenu.add_separator()
 
-        self.filemenu.add_command(label="Save settings", command=self.save_settings_dialog, font=("Arial", 15),
+        self.filemenu.add_command(label="Save settings", command=self.save_settings_dialog, font=("Arial", 12),
                                   state="normal")
         self.filemenu.add_command(
-            label="Exit", command=self.ws.quit, font=("Arial", 15))
+            label="Exit", command=self.ws.quit, font=("Arial", 12))
         self.menubar.add_cascade(
-            label="File", menu=self.filemenu, font=("Arial", 15))
+            label="File", menu=self.filemenu, font=("Arial", 12))
 
         self.helpmenu = Menu(self.menubar, tearoff=0)
         self.helpmenu.add_command(
-            label="About", command=self.aboutWindow, font=("Arial", 15))
+            label="About", command=self.aboutWindow, font=("Arial", 12))
         self.menubar.add_cascade(
-            label="Help", menu=self.helpmenu, font=("Arial", 15))
+            label="Help", menu=self.helpmenu, font=("Arial", 12))
 
         self.annotationsmenu = Menu(self.menubar, tearoff=0)
 
         self.annotationsmenu.add_command(
-            label="Bounding Box", command=self.canvas_obj.load_boundingbbox, font=("Arial", 15))
+            label="Bounding Box", command=self.canvas_obj.load_boundingbbox, font=("Arial", 12))
 
         self.annotationsmenu.add_command(
-            label="Polyline", command=self.canvas_obj.load_polyline, font=("Arial", 15))
+            label="Polyline", command=self.canvas_obj.load_polyline, font=("Arial", 12))
 
         self.annotationsmenu.add_command(
-            label="Polygon", command=self.canvas_obj.load_polygon, font=("Arial", 15))
+            label="Polygon", command=self.canvas_obj.load_polygon, font=("Arial", 12))
 
         self.menubar.add_cascade(
-            label="Examples", menu=self.annotationsmenu, font=("Arial", 15))
+            label="Examples", menu=self.annotationsmenu, font=("Arial", 12))
 
         self.ws.config(menu=self.menubar)
 

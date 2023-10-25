@@ -4,7 +4,6 @@ from tkinter import *
 from PIL import Image, ImageDraw, ImageFont
 from datumaro.components.dataset import Dataset
 
-
 class LabelDraw:
     def __init__(self, labels_file):
         try:
