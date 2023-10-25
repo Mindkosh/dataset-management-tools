@@ -27,11 +27,11 @@ class AutoScrollbar(ttk.Scrollbar):
 
 
 class ImageCanvas:
-    def __init__(self, ws, ws1, canvas_height, canvas_width, image_frame_indicator):
+    def __init__(self, ws, canvas_height, canvas_width, image_frame_indicator):
         self.canvas_width = canvas_width
         self.canvas_height = canvas_height
         self.image_frame_indicator = image_frame_indicator
-        self.ws = ws1
+        self.ws = ws
 
         # Vertical and horizontal scrollbars for canvas
         vbar = AutoScrollbar(self.ws, orient='vertical')
@@ -45,7 +45,7 @@ class ImageCanvas:
             height=canvas_height,
             xscrollcommand=hbar.set,
             yscrollcommand=vbar.set,
-            bd=2
+            bg='#CBD0B9'
         )
         self.click = False
         self.canvas.grid(row=0, column=0)
@@ -71,7 +71,6 @@ class ImageCanvas:
         self.ws.columnconfigure(0, weight=1)
         
         # Bind events to the Canvas
-        # self.canvas.bind('<Configure>', self.show_image)  # canvas is resized
         self.canvas.bind('<ButtonPress-1>', self.move_from)
         self.canvas.bind('<B1-Motion>', self.move_to)
         # with Windows and MacOS, but not Linux
@@ -110,7 +109,7 @@ class ImageCanvas:
         scale_direction = None
 
         # Respond to Linux (event.num) or Windows (event.delta) wheel event
-        if hasattr(event, "delta"):
+        if hasattr(event, "delta") and event.delta != 0:
             if event.delta == -120:
                 # scroll up
                 scale_direction = 0
@@ -118,7 +117,7 @@ class ImageCanvas:
                 # scroll down
                 scale_direction = 1
 
-        elif hasattr(event, "num"):
+        elif hasattr(event, "num") and isinstance(event.num, int):
             if (event.num == 5):
                 # scroll up
                 scale_direction = 0
@@ -141,6 +140,7 @@ class ImageCanvas:
         self.show_image()
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
+
     def loadScale(self, scale, x, y):
         # Rescale all canvas objects
         self.imscale = scale
@@ -150,6 +150,7 @@ class ImageCanvas:
                           self.delta, scale / self.delta)
         self.show_image()
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
+
 
     def show_image(self, event=None):
         self.canvas.delete('all')
@@ -239,8 +240,7 @@ class ImageCanvas:
             self.raw_img = self.raw_img.resize(
                 (self.w, self.h), Image.LANCZOS)
             self.base_img = ImageTk.PhotoImage(self.raw_img)
-            print(self.w, self.h)
-            # self.canvas.config(width=self.w, height=self.h)
+            
             self.img_container = self.canvas.create_image(
                 0,
                 0,
@@ -298,13 +298,7 @@ class ImageCanvas:
         return True
 
     def onResize(self, event):
-        # resize the canvas
-        img = Image.open(self.imgs[self.img_index])
-        # resized = img.resize((event.width, event.height), Image.LANCZOS)
-        # img2 = ImageTk.PhotoImage(resized)
-        # self.canvas.create_image(0, 0, image=img2, anchor='nw')
-        print(event.height)
-        self.canvas.configure(height=event.height-200, width=event.width-20)
+        pass
 
     def control(self, n):
         m = float(n)

@@ -46,8 +46,9 @@ class LabelDraw:
         return self.image_list
 
     def get_labeled_image(self, image_index, outline='#f11'):
-        # font = ImageFont.load_default(size=15)
-        font = ImageFont.load_default()
+
+        font = ImageFont.truetype(os.path.join(
+            utils.get_assets_dir(), "fonts/Assistant-SemiBold.ttf"), 15)
         img = Image.open(self.image_list[image_index])
         img1 = ImageDraw.Draw(img)
 

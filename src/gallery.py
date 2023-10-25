@@ -22,24 +22,7 @@ class Gallery:
         self.searchBtn = tkinter.Button(self.gallery, text="Search", command=self.search, bg='#0052cc',
                                         fg='#ffffff', pady=8, cursor="hand1")
         self.searchBtn.grid(row=1, column=0)
-        # if img_list is not None:
-        #     rows = int(len(img_list)/3) + 1
-        #     for i in range(0, rows):
-        #         for j, k in zip(range(0, 3), range(0, len(img_list))):
-        #             print(i, j, k)
-        #             self.imageFrame.append(tkinter.Frame(self.gallery, relief=tkinter.RAISED, borderwidth=1))
-        #             self.imageFrame[k].grid(row=i, column=j)
-        #             self.canvas_obj.append(tkinter.Canvas(
-        #                 self.gallery,
-        #                 width=100,
-        #                 height=100,
-        #             ))
-        #             im = ImageTk.PhotoImage(Image.open(img_list[k]))
-        #             self.image_canvas.append(self.canvas_obj[k].create_image(
-        #                 20,
-        #                 20,
-        #                 image=im))
-        #             self.canvas_obj[k].itemconfig(self.image_canvas[k], image=im)
+
         self.all_labels = []
         if img_list is not None:
             for i in range(len(img_list)):

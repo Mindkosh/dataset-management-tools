@@ -1,0 +1,6 @@
+Efficient gallery loading when there are a large number of files
+Bugs when loading sample polyline or polygon datasets
+    Brightness does not work
+    First image does not load
+Save brightness and color settings
+Bug where brightness and color settings are not applied when moving to other images
