@@ -1,5 +1,4 @@
 import os
-import time
 from tkinter import *
 import tkinter.font as font
 from PIL import Image

@@ -1,9 +1,6 @@
 import tkinter
-import os
 from tkinter import messagebox
-import utils
 from PIL import ImageTk, Image
-
 
 class Gallery:
 

@@ -2,13 +2,11 @@ import os
 import time
 import utils
 from tkinter import *
-from tkinter import filedialog
-from tkinter import messagebox
+from tkinter import filedialog, messagebox
 from PIL import ImageTk, Image, ImageEnhance
 from labelDraw import LabelDraw
 from tkinter import ttk
 import tkinter as tk
-
 
 class AutoScrollbar(ttk.Scrollbar):
     def set(self, lo, hi):
