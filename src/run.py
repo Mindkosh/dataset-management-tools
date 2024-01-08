@@ -2,6 +2,7 @@ import os
 import time
 from tkinter import *
 import tkinter.font as font
+from PIL import Image
 from tkinter.ttk import Progressbar
 from imageCanvas import ImageCanvas
 import utils
@@ -83,10 +84,15 @@ class MainWindow:
         self.popup_bonus()
         self.ws.update()
         self.img_list = self.canvas_obj.load_from_datumaro_dataset()
-        if self.img_list[0] is True:
+        
+        if self.img_list and len(self.img_list) > 0:
             self.popup_window.destroy()
             self.filemenu.entryconfig(2, state="normal")
             self.ws.update()
+            self.canvas_obj.img_index = 0
+            self.canvas_obj.raw_img = self.canvas_obj.label_object.get_labeled_image(0)
+            self.canvas_obj.show_image()
+            self.canvas_obj.image_frame_indicator.set("1/" + str(self.canvas_obj.number_of_images))
 
     def load_from_directory(self):
         self.img_list = self.canvas_obj.update_img_list()

@@ -252,7 +252,7 @@ class ImageCanvas:
 
     def load_from_datumaro_dataset(self, filename=None):
         if filename is None:
-            labels_file = filedialog.askopenfile(mode='r', filetypes=[('JSON Files', '*.json')],
+            labels_file = filedialog.askopenfile(mode='r', filetypes=[('JSON Files', '*.json'), ('XML', '*.xml')],
                                                  title="Select Dataset file", initialdir=os.getcwd()).name
         else:
             labels_file = filename
@@ -260,7 +260,8 @@ class ImageCanvas:
         try:
             self.label_object = LabelDraw(labels_file)
             img_list = self.label_object.get_image_list()
-            self.update_img_list(img_list)
+            _, validated_img_list = self.update_img_list(img_list)
+            return validated_img_list
         except Exception as e:
             print(e)
             messagebox.showinfo("Error", "Could not parse Labels file")
