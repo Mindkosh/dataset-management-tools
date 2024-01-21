@@ -58,7 +58,7 @@ class MainWindow:
         self.v = DoubleVar()
         self.v1 = DoubleVar()
         self.scroll = Scale(self.controlsFrame, orient=HORIZONTAL, resolution=0.1, label='Brightness', font=self.myFont, from_=0, to=2,
-                            variable=self.v, command=self.canvas_obj.control, bg='#CBC9AD')
+                            variable=self.v, command=self.canvas_obj.brightnessControl, bg='#CBC9AD')
         self.scroll.set(1)
         self.scroll.grid(row=0, column=4, padx=10)
 
@@ -84,8 +84,8 @@ class MainWindow:
         self.ws.update()
         self.img_list = self.canvas_obj.load_from_datumaro_dataset()
         
+        self.popup_window.destroy()
         if self.img_list and len(self.img_list) > 0:
-            self.popup_window.destroy()
             self.filemenu.entryconfig(2, state="normal")
             self.ws.update()
             self.canvas_obj.img_index = 0
@@ -124,7 +124,7 @@ class MainWindow:
         f = open('settings.json')
         data = json.load(f)
         self.scroll.set(data['image_brightness'])
-        self.canvas_obj.control(self.scroll.get())
+        self.canvas_obj.brightnessControl(self.scroll.get())
         self.canvas_obj.updateImage(data['image_index'])
         self.canvas_obj.loadScale(data['zoom_scale'], 0, 0)
         self.canvas_obj.canvas.yview_moveto(data['yview'])

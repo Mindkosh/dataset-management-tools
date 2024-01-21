@@ -1,6 +1,8 @@
-Efficient gallery loading when there are a large number of files
+Bug where brightness and color settings are not applied when moving to other images
 Bugs when loading sample polyline or polygon datasets
     Brightness does not work
     First image does not load
 Save brightness and color settings
-Bug where brightness and color settings are not applied when moving to other images
+Location of images in dataset files
+Rotation of boxes
+Efficient gallery loading when there are a large number of files

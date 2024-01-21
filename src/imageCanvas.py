@@ -8,6 +8,7 @@ from labelDraw import LabelDraw
 from tkinter import ttk
 import tkinter as tk
 
+
 class AutoScrollbar(ttk.Scrollbar):
     def set(self, lo, hi):
         if float(lo) <= 0.0 and float(hi) >= 1.0:
@@ -50,6 +51,7 @@ class ImageCanvas:
         self.imgs = []
         self.label_object = None
         self.img_index = 0
+        self.brightnessValue = 1
 
         if os.name == "nt":
             self.default_dataset_file = os.path.join(utils.get_assets_dir(),
@@ -59,14 +61,14 @@ class ImageCanvas:
                                                      "dataset/annotations/instances_default.json")
 
         self.load_from_datumaro_dataset(self.default_dataset_file)
-        
+
         # bind scrollbars to the canvas
         vbar.configure(command=self.canvas.yview)
         hbar.configure(command=self.canvas.xview)
 
         self.ws.rowconfigure(0, weight=1)
         self.ws.columnconfigure(0, weight=1)
-        
+
         # Bind events to the Canvas
         self.canvas.bind('<ButtonPress-1>', self.move_from)
         self.canvas.bind('<B1-Motion>', self.move_to)
@@ -135,7 +137,6 @@ class ImageCanvas:
         self.show_image()
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
-
     def loadScale(self, scale, x, y):
         # Rescale all canvas objects
         self.imscale = scale
@@ -146,18 +147,21 @@ class ImageCanvas:
         self.show_image()
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
-
     def show_image(self, event=None):
         self.canvas.delete('all')
         if self.imageid:
             self.canvas.delete(self.imageid)
             self.imageid = None
-            self.canvas.imagetk = None  # delete previous image from the canvas
+            # delete previous image from the canvas
+            self.canvas.imagetk = None
+        
         width, height = self.raw_img.size
         new_size = int(self.imscale * width), int(self.imscale * height)
         imagetk = ImageTk.PhotoImage(self.raw_img.resize(new_size))
+        
         # Use self.text object to set proper coordinates
         self.imageid = self.canvas.create_image((0, 0), image=imagetk)
+        
         # keep an extra reference to prevent garbage-collection
         self.canvas.imagetk = imagetk
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
@@ -230,19 +234,6 @@ class ImageCanvas:
             else:
                 self.raw_img = Image.open(self.imgs[0])
 
-            # self.w, self.h = self.calc_size(self.raw_img.size)
-            # self.raw_img = self.raw_img.resize(
-            #     (self.w, self.h), Image.LANCZOS)
-            # self.base_img = ImageTk.PhotoImage(self.raw_img)
-            
-            # self.img_container = self.canvas.create_image(
-            #     0,
-            #     0,
-            #     anchor=NW,
-            #     image=self.base_img
-            # )
-            # self.canvas.delete(self.img_container)
-
             self.image_frame_indicator.set(
                 str(self.img_index + 1) + "/" + str(self.number_of_images))
 
@@ -251,18 +242,23 @@ class ImageCanvas:
     def load_from_datumaro_dataset(self, filename=None):
         if filename is None:
             labels_file = filedialog.askopenfile(mode='r', filetypes=[('JSON Files', '*.json'), ('XML', '*.xml')],
-                                                 title="Select Dataset file", initialdir=os.getcwd()).name
+                                                 title="Select Dataset file", initialdir=os.getcwd())
+            if labels_file:
+                labels_file = labels_file.name
         else:
             labels_file = filename
 
-        try:
-            self.label_object = LabelDraw(labels_file)
-            img_list = self.label_object.get_image_list()
-            _, validated_img_list = self.update_img_list(img_list)
-            return validated_img_list
-        except Exception as e:
-            print(e)
-            messagebox.showinfo("Error", "Could not parse Labels file")
+        if labels_file:
+            try:
+                self.label_object = LabelDraw(labels_file)
+                img_list = self.label_object.get_image_list()
+                _, validated_img_list = self.update_img_list(img_list)
+                return validated_img_list
+            except Exception as e:
+                print(e)
+                messagebox.showinfo("Error", "Could not parse Labels file")
+        else:
+            return []
 
     def export_images_with_labels(self, progress_bar, directory=None):
         for index in range(self.number_of_images):
@@ -296,15 +292,16 @@ class ImageCanvas:
     def onResize(self, event):
         pass
 
-    def control(self, n):
-        m = float(n)
+    def brightnessControl(self, n):
+        brightnessValue = float(n)
         self.raw_img = self.label_object.get_labeled_image(self.img_index)
         enhancer = ImageEnhance.Brightness(self.raw_img)
-        im = enhancer.enhance(m)
+        im = enhancer.enhance(brightnessValue)
         self.raw_img = im
-        img2 = ImageTk.PhotoImage(im)
-        image_on_canvas = self.canvas.create_image(0, 0, image=img2, anchor=NW)
-        self.canvas.itemconfig(image_on_canvas, image=img2)
+        updatedImage = ImageTk.PhotoImage(im)
+        image_on_canvas = self.canvas.create_image(0, 0, image=updatedImage, anchor=NW)
+        self.canvas.itemconfig(image_on_canvas, image=updatedImage)
+        self.brightnessValue = brightnessValue
         self.show_image()
 
     def updateImage(self, img_index):
@@ -359,7 +356,7 @@ class ImageCanvas:
         else:
             self.default_dataset_file = os.path.join(utils.get_assets_dir(),
                                                      "dataset/annotations/instances_default_polyline.json")
-        
+
         self.getDataset("polyline")
         self.img_container = self.canvas.create_rectangle(
             0, 0, self.canvas_width, self.canvas_height, width=0)
@@ -380,7 +377,7 @@ class ImageCanvas:
     def getDataset(self, ty):
         self.canvas.delete('all')
         img_list = []
-        if ty=="polyline":
+        if ty == "polyline":
             for img in os.listdir(os.path.join(utils.get_assets_dir(), 'dataset', 'images_polyline')):
                 if os.name == "nt":
                     img_list.append(os.path.join(
