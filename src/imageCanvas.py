@@ -1,6 +1,7 @@
 import os
 import time
 import utils
+import sys
 from tkinter import *
 from tkinter import filedialog, messagebox
 from PIL import ImageTk, Image, ImageEnhance
@@ -229,7 +230,6 @@ class ImageCanvas:
                 self.raw_img = self.label_object.get_labeled_image(0)
             else:
                 self.raw_img = Image.open(self.imgs[0])
-
             # self.w, self.h = self.calc_size(self.raw_img.size)
             # self.raw_img = self.raw_img.resize(
             #     (self.w, self.h), Image.LANCZOS)
@@ -251,16 +251,24 @@ class ImageCanvas:
     def load_from_datumaro_dataset(self, filename=None):
         if filename is None:
             labels_file = filedialog.askopenfile(mode='r', filetypes=[('JSON Files', '*.json'), ('XML', '*.xml')],
-                                                 title="Select Dataset file", initialdir=os.getcwd()).name
+                                                 title="Select Dataset file", initialdir="/home/sdevgupta/Documents/Customers/Current/ImpactSoccer/annotations/arlington-1-annotations_cvat_release_id_616").name
         else:
             labels_file = filename
 
         try:
+            print("loading")
             self.label_object = LabelDraw(labels_file)
+            print("loaded")
             img_list = self.label_object.get_image_list()
+            print("loaded2")
             _, validated_img_list = self.update_img_list(img_list)
+            print("loaded3")
             return validated_img_list
         except Exception as e:
+            print("An error")
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
             messagebox.showinfo("Error", "Could not parse Labels file")
 
@@ -371,7 +379,7 @@ class ImageCanvas:
         if len(col) != 6 and col != '0':
             col = '0' + col
         self.raw_img = self.label_object.get_labeled_image(self.img_index,
-                                                           outline="#" + col if col != '0' else '#000')
+                                                           colorParam="#" + col if col != '0' else '#000')
         img2 = ImageTk.PhotoImage(self.raw_img)
         image_on_canvas = self.canvas.create_image(0, 0, image=img2, anchor=NW)
         self.canvas.itemconfig(image_on_canvas, image=img2)

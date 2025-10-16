@@ -49,10 +49,10 @@ class MainWindow:
                            fg='#ffffff', font=self.myFont, pady=8, cursor="hand1")
         self.btn4.grid(row=0, column=2)
         
-        self.btn5 = Button(self.controlsFrame, text="View Gallery", command=self.runGallery, bg='#656839',
-                           fg='#ffffff', pady=8, cursor="hand1")
-        self.btn5["font"] = self.myFont
-        self.btn5.grid(row=0, column=3, padx=30)
+        # self.btn5 = Button(self.controlsFrame, text="View Gallery", command=self.runGallery, bg='#656839',
+        #                    fg='#ffffff', pady=8, cursor="hand1")
+        # self.btn5["font"] = self.myFont
+        # self.btn5.grid(row=0, column=3, padx=30)
 
         self.createMenu()
         self.v = DoubleVar()

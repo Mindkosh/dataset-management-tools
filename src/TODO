@@ -1,4 +1,4 @@
-Efficient gallery loading when there are a large number of files
+Efficient gallery loading when there are a large number of files. Removed for now
 Bugs when loading sample polyline or polygon datasets
     Brightness does not work
     First image does not load
