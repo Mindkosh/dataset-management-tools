@@ -54,6 +54,12 @@ class ImageCanvas:
         self.imgs = []
         self.label_object = None
         self.img_index = 0
+        self.label_label = {
+            "bbox": "Box",
+            "polygon": "Polygon",
+            "polyline": "Polyline",
+            "points": "Points"
+        }
 
         if os.name == "nt":
             self.default_dataset_file = os.path.join(utils.get_assets_dir(),
@@ -69,7 +75,7 @@ class ImageCanvas:
         hbar.configure(command=self.canvas.xview)
 
         self.ws.rowconfigure(0, weight=1)
-        self.ws.columnconfigure(0, weight=1)
+        self.ws.columnconfigure(1, weight=1)
 
         # Bind events to the Canvas
         self.canvas.bind('<ButtonPress-1>', self.move_from)
@@ -231,18 +237,6 @@ class ImageCanvas:
                 self.raw_img = self.label_object.get_labeled_image(0)
             else:
                 self.raw_img = Image.open(self.imgs[0])
-            # self.w, self.h = self.calc_size(self.raw_img.size)
-            # self.raw_img = self.raw_img.resize(
-            #     (self.w, self.h), Image.LANCZOS)
-            # self.base_img = ImageTk.PhotoImage(self.raw_img)
-
-            # self.img_container = self.canvas.create_image(
-            #     0,
-            #     0,
-            #     anchor=NW,
-            #     image=self.base_img
-            # )
-            # self.canvas.delete(self.img_container)
 
             self.image_frame_indicator.set(
                 str(self.img_index + 1) + "/" + str(self.number_of_images))
@@ -252,7 +246,7 @@ class ImageCanvas:
     def load_from_datumaro_dataset(self, filename=None):
         if filename is None:
             labels_file = filedialog.askopenfile(mode='r', filetypes=[('JSON Files', '*.json'), ('XML', '*.xml')],
-                                                 title="Select Dataset file", initialdir="/home/sdevgupta/Documents/Customers/Current/ImpactSoccer/annotations/arlington-1-annotations_cvat_release_id_616").name
+                                                 title="Select Dataset file", initialdir=os.getcwd()).name
         else:
             labels_file = filename
 
@@ -278,8 +272,8 @@ class ImageCanvas:
                 color_sq.pack(side='left', padx=(0, 8), pady=6)
 
                 # text to the right of the square
-                lbl = Label(item_frame, text=label_name + "(" +
-                            label_set[label_name][0] + ")", bg='#CBC9AD', anchor='w', padx=4, pady=6, font=("Helvetica", 12))
+                lbl = Label(item_frame, text=label_name + " (" +
+                            self.label_label[label_set[label_name][0]] + " )", bg='#CBC9AD', anchor='w', padx=4, pady=6, font=("Helvetica", 12))
                 lbl.pack(side='left', fill='x', expand=True)
 
                 self.label_items.append(item_frame)
@@ -292,6 +286,7 @@ class ImageCanvas:
             print("An error")
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
             messagebox.showinfo("Error", "Could not parse Labels file")
 
     def export_images_with_labels(self, progress_bar, directory=None):

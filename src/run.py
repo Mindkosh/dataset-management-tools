@@ -15,7 +15,7 @@ class MainWindow:
         self.ws = Tk()
         self.img_list = []
 
-        self.width = self.ws.winfo_screenwidth()-50
+        self.width = self.ws.winfo_screenwidth()-270
         self.height = self.ws.winfo_screenheight()-130
 
         self.ws.title('Browse image datasets')
@@ -33,14 +33,15 @@ class MainWindow:
         self.ws.grid_columnconfigure(0, weight=0)
         # image area (allow to expand)
         self.ws.grid_columnconfigure(1, weight=1)
-        self.ws.grid_columnconfigure(2, weight=0)  # side panel
+        # side panel
+        self.ws.grid_columnconfigure(2, weight=0)
 
         self.side_panel = Frame(self.ws, borderwidth=0,
                                 relief='sunken', bg='#CBC9AD', padx=8, pady=8)
         self.side_panel.grid(row=0, column=2, sticky='nsew', padx=4, pady=10)
 
         self.side_title = Label(self.side_panel, text="Labels", font=(
-            "Helvetica", 15), bg='#CBC9AD')
+            "Helvetica", 14), bg='#CBC9AD')
         self.side_title.pack(anchor='nw', pady=(0, 6))
 
         # scrollable area for many colored label entries
@@ -69,8 +70,7 @@ class MainWindow:
 
         self.image_number = StringVar()
         self.image_number.set("0/0")
-        self.image_number_label = Label(self.controlsFrame, textvariable=self.image_number, font=("Helvetica", 15), bg='#CBC9AD', pady=8,
-                                        padx=10)
+        self.image_number_label = Label(self.controlsFrame, textvariable=self.image_number, font=("Helvetica", 15), bg='#CBC9AD', pady=8, padx=10)
 
         self.image_number_label.grid(row=0, column=1)
 

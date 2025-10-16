@@ -1,7 +1,6 @@
 import xml.etree.ElementTree as ET
 
-
-class Image:
+class Media:
     def __init__(self, name, path):
         self.name = name
         self.path = path
@@ -21,10 +20,10 @@ class Annotation:
 
 
 class DatasetItem:
-    def __init__(self, id, annotations, image):
+    def __init__(self, id, annotations, media):
         self.id = id
         self.annotations = annotations
-        self.image = image
+        self.media = media
 
 
 class Dataset:
@@ -77,7 +76,7 @@ def import_from(filename):
 
     for child in root_annotations:
         if (child.tag == "image"):
-            img = Image(child.attrib["name"], child.attrib["name"])
+            img = Media(child.attrib["name"], child.attrib["name"])
             item = DatasetItem(str(ind), [], img)
             for ind, ann in enumerate(child):
                 if ann.tag == 'box':
@@ -105,12 +104,11 @@ def import_from(filename):
                 
                 elif ann.tag == 'points':
                     label_id = dataset.find_label_id(ann.attrib["label"])
-                    points = ann.attrib['points'].split(",")
-
+                    points = ann.attrib['points'].replace(',', ';').split(";")
                     points = [int(round(float(p.strip())))
                               for p in points if p.strip() != '']
                     rotation = None
-                    ann = Annotation(label_id, points, 'polyline', rotation)
+                    ann = Annotation(label_id, points, 'points', rotation)
                     item.annotations.append(ann)
 
             dataset.add_item(item)

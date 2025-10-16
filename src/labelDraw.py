@@ -5,7 +5,7 @@ from tkinter import *
 from PIL import Image, ImageDraw, ImageFont
 from datumaro.components.dataset import Dataset
 import cvat_format
-import random
+from pathlib import Path
 import consts
 
 class LabelDraw:
@@ -42,21 +42,22 @@ class LabelDraw:
         self.annotations = []
         self.image_list = []
         self.label_list = {}
+        
         for item in self.dataset:
             new_item = {}
             new_item["id"] = item.id
+            
+            alt1 = str(Path(os.path.join(utils.get_assets_dir(), "dataset\\images", item.media.path)))
+            
             if self.dataset_type == "cvat":
-                alt1 = os.path.join(utils.get_assets_dir(
-                ), "dataset_files\\images", os.path.basename(item.image.path))
-                alt2 = os.path.join(os.path.dirname(
-                    labels_file), "images", os.path.basename(item.image.path))
-                img_filepath = alt1
-                if os.path.exists(alt1) is False:
-                    img_filepath = alt2
-
-                self.image_list.append(img_filepath)
+                alt2 = str(Path(os.path.join(os.path.dirname(
+                    labels_file), "images", item.media.path)))
+                img_filepath = alt2
+                if os.path.exists(alt2) is False:
+                    img_filepath = alt1
+                self.image_list.append(str(img_filepath))
             else:
-                self.image_list.append(item.image.path)
+                self.image_list.append(alt1)
 
             new_item["label_items"] = []
             for ind,i in enumerate(item.annotations):
@@ -127,7 +128,7 @@ class LabelDraw:
             else:
                 color = colorParam
 
-            text_points = (label["points"][0], max(label["points"][1] - 20, 0))
+            text_points = (label["points"][0], max(label["points"][1] - 25, 0))
 
             if label["type"] == 'bbox':
                 if ("rotation" in label and label["rotation"] != 0):
@@ -155,10 +156,16 @@ class LabelDraw:
                               [0], cord_points[i+1][1]), fill=color, width=4)
 
             elif label["type"] == 'points':
-                r = 3
-                x = label['points'][0]
-                y = label['points'][1]
-                img1.ellipse((x - r, y - r, x + r, y + r), fill=color)
+                r = 6
+                cord_points = []
+                for i in range(0, len(label['points']) - 1, 2):
+                    x = label['points'][i]
+                    y = label['points'][i + 1]
+                    cord_points.append([x, y])
+                for cord_point in cord_points:
+                    x = cord_point[0]
+                    y = cord_point[1]
+                    img1.ellipse((x - r, y - r, x + r, y + r), fill=color)
 
             img1.text(text_points, label["label_name"], color, font)
 
