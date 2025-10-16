@@ -6,15 +6,13 @@ from PIL import Image, ImageDraw, ImageFont
 from datumaro.components.dataset import Dataset
 import cvat_format
 import random
-
+import consts
 
 class LabelDraw:
     def __init__(self, labels_file):
         self._label_colors = {}
         if labels_file.endswith(".xml"):
-            print("importing")
             self.dataset = cvat_format.import_from(labels_file)
-            print("imported")
             self.dataset_type = "cvat"
 
             self.labels = self.dataset.labels
@@ -43,6 +41,7 @@ class LabelDraw:
 
         self.annotations = []
         self.image_list = []
+        self.label_list = {}
         for item in self.dataset:
             new_item = {}
             new_item["id"] = item.id
@@ -60,7 +59,7 @@ class LabelDraw:
                 self.image_list.append(item.image.path)
 
             new_item["label_items"] = []
-            for i in item.annotations:
+            for ind,i in enumerate(item.annotations):
                 label_item = {}
                 label_item["points"] = i.points
                 label_item["label_id"] = i.label
@@ -71,8 +70,16 @@ class LabelDraw:
                 ann_type = i.type.name
                 label_item["type"] = ann_type
 
+                if label_item["label_id"] not in self._label_colors:
+                    new_color = consts.colors[ind]
+                    self._label_colors[label_item["label_id"]] = new_color
+                    self.label_list[label_item["label_name"]] = [ann_type, new_color]
+
             self.annotations.append(new_item)
         self.dataset = None
+
+    def get_label_list(self):
+        return self.label_list
 
     def get_image_list(self):
         return self.image_list
@@ -109,15 +116,11 @@ class LabelDraw:
         img = Image.open(self.image_list[image_index])
         img1 = ImageDraw.Draw(img)
 
-        for label in self.annotations[image_index]["label_items"]:
+        for ind, label in enumerate(self.annotations[image_index]["label_items"]):
 
             label_id = label.get("label_id")
             if label_id not in self._label_colors:
-                self._label_colors[label_id] = "#{:02x}{:02x}{:02x}".format(
-                    random.randint(0, 255),
-                    random.randint(0, 255),
-                    random.randint(0, 255),
-                )
+                self._label_colors[label_id] = consts.colors[ind]
 
             if colorParam == None:
                 color = self._label_colors[label_id]

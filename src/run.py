@@ -1,13 +1,13 @@
 import os
 from tkinter import *
 import tkinter.font as font
-from PIL import Image
 from tkinter.ttk import Progressbar
 from imageCanvas import ImageCanvas
 import utils
 from gallery import Gallery
 from tkinter import filedialog
 import json
+
 
 class MainWindow:
 
@@ -29,15 +29,53 @@ class MainWindow:
             self.ws, borderwidth=1, pady=30, padx=30, bg='#CBC9AD')
         self.controlsFrame.grid(row=1, column=0)
 
+        # add a right-side panel for a labeled list
+        self.ws.grid_columnconfigure(0, weight=0)
+        # image area (allow to expand)
+        self.ws.grid_columnconfigure(1, weight=1)
+        self.ws.grid_columnconfigure(2, weight=0)  # side panel
+
+        self.side_panel = Frame(self.ws, borderwidth=0,
+                                relief='sunken', bg='#CBC9AD', padx=8, pady=8)
+        self.side_panel.grid(row=0, column=2, sticky='nsew', padx=4, pady=10)
+
+        self.side_title = Label(self.side_panel, text="Labels", font=(
+            "Helvetica", 15), bg='#CBC9AD')
+        self.side_title.pack(anchor='nw', pady=(0, 6))
+
+        # scrollable area for many colored label entries
+        list_container = Frame(self.side_panel, bg='#CBC9AD')
+        list_container.pack(fill='both', expand=True)
+
+        self._label_canvas = Canvas(
+            list_container, bg='#CBC9AD', highlightthickness=0)
+        self._label_frame = Frame(self._label_canvas, bg='#CBC9AD')
+        _vsbar = Scrollbar(list_container, orient="vertical",
+                           command=self._label_canvas.yview)
+        self._label_canvas.configure(yscrollcommand=_vsbar.set)
+
+        _vsbar.pack(side="right", fill="y")
+        self._label_canvas.pack(side="left", fill="both", expand=True)
+        self._label_canvas.create_window(
+            (0, 0), window=self._label_frame, anchor='nw')
+
+        def _on_label_frame_config(event):
+            self._label_canvas.configure(
+                scrollregion=self._label_canvas.bbox("all"))
+
+        self._label_frame.bind("<Configure>", _on_label_frame_config)
+
+        self.label_items = []
+
         self.image_number = StringVar()
         self.image_number.set("0/0")
-        self.image_number_label = Label(self.controlsFrame, textvariable=self.image_number, font=("Arial", 15), bg='#CBC9AD', pady=8,
+        self.image_number_label = Label(self.controlsFrame, textvariable=self.image_number, font=("Helvetica", 15), bg='#CBC9AD', pady=8,
                                         padx=10)
 
         self.image_number_label.grid(row=0, column=1)
 
         self.canvas_obj = ImageCanvas(
-            self.ws, self.height, self.width, self.image_number)
+            self.ws, self.height, self.width, self.image_number, self.label_items, self._label_frame)
 
         self.myFont = font.Font(family="Helvetica", size=12)
 
@@ -48,7 +86,7 @@ class MainWindow:
         self.btn4 = Button(self.controlsFrame, text="Next", command=self.canvas_obj.next_image, bg='#656839',
                            fg='#ffffff', font=self.myFont, pady=8, cursor="hand1")
         self.btn4.grid(row=0, column=2)
-        
+
         # self.btn5 = Button(self.controlsFrame, text="View Gallery", command=self.runGallery, bg='#656839',
         #                    fg='#ffffff', pady=8, cursor="hand1")
         # self.btn5["font"] = self.myFont
@@ -71,8 +109,9 @@ class MainWindow:
         self.canvas_obj.updateImage(img_index)
 
     def aboutWindow(self):
-        print("Menu option clicked")
-        print(self.controlsFrame.winfo_width(), self.controlsFrame.winfo_height())
+        print("Not implemented yet")
+        print(self.controlsFrame.winfo_width(),
+              self.controlsFrame.winfo_height())
 
     def runGallery(self):
         self.img_list = self.canvas_obj.getImgList()
@@ -83,15 +122,17 @@ class MainWindow:
         self.popup_bonus()
         self.ws.update()
         self.img_list = self.canvas_obj.load_from_datumaro_dataset()
-        
+
         if self.img_list and len(self.img_list) > 0:
             self.popup_window.destroy()
             self.filemenu.entryconfig(2, state="normal")
             self.ws.update()
             self.canvas_obj.img_index = 0
-            self.canvas_obj.raw_img = self.canvas_obj.label_object.get_labeled_image(0)
+            self.canvas_obj.raw_img = self.canvas_obj.label_object.get_labeled_image(
+                0)
             self.canvas_obj.show_image()
-            self.canvas_obj.image_frame_indicator.set("1/" + str(self.canvas_obj.number_of_images))
+            self.canvas_obj.image_frame_indicator.set(
+                "1/" + str(self.canvas_obj.number_of_images))
 
     def load_from_directory(self):
         self.img_list = self.canvas_obj.update_img_list()

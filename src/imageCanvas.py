@@ -9,6 +9,7 @@ from labelDraw import LabelDraw
 from tkinter import ttk
 import tkinter as tk
 
+
 class AutoScrollbar(ttk.Scrollbar):
     def set(self, lo, hi):
         if float(lo) <= 0.0 and float(hi) >= 1.0:
@@ -25,11 +26,13 @@ class AutoScrollbar(ttk.Scrollbar):
 
 
 class ImageCanvas:
-    def __init__(self, ws, canvas_height, canvas_width, image_frame_indicator):
+    def __init__(self, ws, canvas_height, canvas_width, image_frame_indicator, label_items, _label_frame):
         self.canvas_width = canvas_width
         self.canvas_height = canvas_height
         self.image_frame_indicator = image_frame_indicator
         self.ws = ws
+        self.label_items = label_items
+        self._label_frame = _label_frame
 
         # Vertical and horizontal scrollbars for canvas
         vbar = AutoScrollbar(self.ws, orient='vertical')
@@ -60,14 +63,14 @@ class ImageCanvas:
                                                      "dataset/annotations/instances_default.json")
 
         self.load_from_datumaro_dataset(self.default_dataset_file)
-        
+
         # bind scrollbars to the canvas
         vbar.configure(command=self.canvas.yview)
         hbar.configure(command=self.canvas.xview)
 
         self.ws.rowconfigure(0, weight=1)
         self.ws.columnconfigure(0, weight=1)
-        
+
         # Bind events to the Canvas
         self.canvas.bind('<ButtonPress-1>', self.move_from)
         self.canvas.bind('<B1-Motion>', self.move_to)
@@ -136,7 +139,6 @@ class ImageCanvas:
         self.show_image()
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
-
     def loadScale(self, scale, x, y):
         # Rescale all canvas objects
         self.imscale = scale
@@ -146,7 +148,6 @@ class ImageCanvas:
                           self.delta, scale / self.delta)
         self.show_image()
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
-
 
     def show_image(self, event=None):
         self.canvas.delete('all')
@@ -234,7 +235,7 @@ class ImageCanvas:
             # self.raw_img = self.raw_img.resize(
             #     (self.w, self.h), Image.LANCZOS)
             # self.base_img = ImageTk.PhotoImage(self.raw_img)
-            
+
             # self.img_container = self.canvas.create_image(
             #     0,
             #     0,
@@ -256,20 +257,41 @@ class ImageCanvas:
             labels_file = filename
 
         try:
-            print("loading")
             self.label_object = LabelDraw(labels_file)
-            print("loaded")
+            label_set = self.label_object.get_label_list()
+
+            # remove old widgets
+            for lbl in list(self.label_items):
+                try:
+                    lbl.destroy()
+                except Exception:
+                    pass
+            self.label_items = []
+
+            # create new widgets
+            for label_name in label_set.keys():
+                item_frame = Frame(self._label_frame, bg='#CBC9AD')
+                item_frame.pack(fill='x', pady=4)
+
+                # colored square on the left
+                color_sq = Canvas(item_frame, width=18, height=18, bg=label_set[label_name][1], highlightthickness=0)
+                color_sq.pack(side='left', padx=(0, 8), pady=6)
+
+                # text to the right of the square
+                lbl = Label(item_frame, text=label_name + "(" +
+                            label_set[label_name][0] + ")", bg='#CBC9AD', anchor='w', padx=4, pady=6, font=("Helvetica", 12))
+                lbl.pack(side='left', fill='x', expand=True)
+
+                self.label_items.append(item_frame)
+
             img_list = self.label_object.get_image_list()
-            print("loaded2")
             _, validated_img_list = self.update_img_list(img_list)
-            print("loaded3")
             return validated_img_list
+        
         except Exception as e:
             print("An error")
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
-            print(e)
             messagebox.showinfo("Error", "Could not parse Labels file")
 
     def export_images_with_labels(self, progress_bar, directory=None):
@@ -367,7 +389,7 @@ class ImageCanvas:
         else:
             self.default_dataset_file = os.path.join(utils.get_assets_dir(),
                                                      "dataset/annotations/instances_default_polyline.json")
-        
+
         self.getDataset("polyline")
         self.img_container = self.canvas.create_rectangle(
             0, 0, self.canvas_width, self.canvas_height, width=0)
@@ -388,7 +410,7 @@ class ImageCanvas:
     def getDataset(self, ty):
         self.canvas.delete('all')
         img_list = []
-        if ty=="polyline":
+        if ty == "polyline":
             for img in os.listdir(os.path.join(utils.get_assets_dir(), 'dataset', 'images_polyline')):
                 if os.name == "nt":
                     img_list.append(os.path.join(
