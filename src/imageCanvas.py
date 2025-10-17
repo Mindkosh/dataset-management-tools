@@ -75,7 +75,7 @@ class ImageCanvas:
         hbar.configure(command=self.canvas.xview)
 
         self.ws.rowconfigure(0, weight=1)
-        self.ws.columnconfigure(1, weight=1)
+        self.ws.columnconfigure(0, weight=1)
 
         # Bind events to the Canvas
         self.canvas.bind('<ButtonPress-1>', self.move_from)
@@ -246,10 +246,14 @@ class ImageCanvas:
     def load_from_datumaro_dataset(self, filename=None):
         if filename is None:
             labels_file = filedialog.askopenfile(mode='r', filetypes=[('JSON Files', '*.json'), ('XML', '*.xml')],
-                                                 title="Select Dataset file", initialdir=os.getcwd()).name
+                                                 title="Select Dataset file", initialdir=os.getcwd())
+            if labels_file is not None and labels_file != '':
+                labels_file = labels_file.name
         else:
             labels_file = filename
 
+        if labels_file is None or labels_file == '':
+            return []
         try:
             self.label_object = LabelDraw(labels_file)
             label_set = self.label_object.get_label_list()
